@@ -36,14 +36,15 @@ public class DeletePictureCommand extends UndoableCommand {
 
     @Override
     public CommandResult executeUndoableCommand() throws CommandException {
+        ReadOnlyPerson targetPerson;
         try {
-            model.removeProfilePicture(personToUpdate);
+            targetPerson = model.removeProfilePicture(personToUpdate);
         } catch (ProfilePictureNotFoundException e) {
             throw new CommandException(String.format(MESSAGE_DELETE_PICTURE_FAILURE, personToUpdate.getName()));
         }
 
         ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-        reselectPerson(personToUpdate);
+        reselectPerson(targetPerson);
 
         String currentList = ListObserver.getCurrentListName();
 

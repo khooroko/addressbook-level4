@@ -36,15 +36,15 @@ public class AddPictureCommand extends UndoableCommand {
 
     @Override
     public CommandResult executeUndoableCommand() throws CommandException {
-
+        ReadOnlyPerson targetPerson;
         try {
-            model.addProfilePicture(personToUpdate);
+            targetPerson = model.addProfilePicture(personToUpdate);
         } catch (ProfilePictureNotFoundException ppnfe) {
             throw new CommandException(String.format(MESSAGE_ADDPIC_FAILURE, personToUpdate.getName()));
         }
 
         ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-        reselectPerson(personToUpdate);
+        reselectPerson(targetPerson);
 
         String currentList = ListObserver.getCurrentListName();
 
