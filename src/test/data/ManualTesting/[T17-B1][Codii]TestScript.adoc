@@ -42,6 +42,8 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Should show "Password can only consist of uppercase letters (A-Z), lowercase letters (a-z) digits (0-9) and special characters (!@#$&()_-.+)" in result display.
 . `login fakeuser fakepassword`
 ** Should show "Unable to log into Address Book" in result display.
+. `login     loanShark97       hitMeUp123`
+** Should show invalid command format message in result display and incorrect masking of password.
 . `login loanShark97 hitMeUp123`
 ** Should log in successfully.
 . `logout`
