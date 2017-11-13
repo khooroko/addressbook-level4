@@ -74,8 +74,6 @@ Do not copy and paste commands into the command box when testing CLI login. Plea
 ** Should show "Unable to log into Codii" in result display.
 . Enter `loanShark97` into username field and `hitMeUp123` into password field, then press kbd:[Enter]
 ** Should log in successfully.
-. `logout`
-** Should return to the login screen.
 
 === After logging in
 
@@ -262,3 +260,38 @@ Go into the folder named `profilepic`, located in the same directory as codii.ja
 ** Should show "MASTERLIST: Bernice Yu profile picture has been removed!" in the result display and the display picture of the person should have been updated in the infopanel.
 . `delpic 3`
 ** Should show "Charlotte Oliveiro does not have a profile picture!" in the result display.
+
+==== Filter by tags
+. `filter unpredictable`
+** Should show "Showing all contacts with the tag(s): [unpredictable]2 persons listed!" in the result display. Liang Ah Hock and Nigel Tan should be shown in person list.
+. `filter friendly cooperative`
+** Should show "Showing all contacts with the tag(s): [friendly, cooperative] 8 persons listed!" in the result display. Eileen Choo, Gisela tan, Jacob Peters, Pasito Arioto, Queenie Lim, Roy Balakrishnan, Sam Bahdy and Timmmy Zhu should be shown in person list.
+. `filter unfriendly violent tricky`
+** Should show "Showing all contacts with the tag(s): [unfriendly, violent, tricky] 10 persons listed!" in the result display. Bernice Yu, Alex Yeoh, David Li, Charlotte Oliveiro, Irfan Ibrahim, Farhan Mohammed, Herbert He, Kanyee North, Monica Liza and Pasito Arioto should be shown in person list.
+. `filter asdf`
+** Should show "Showing all contacts with the tag(s): [asdf] 0 persons listed!" in the result display. No contacts should be shown in the person list.
+
+==== Borrow more money
+. `borrow 1 500`
+** Should show "MASTERLIST: Bernice Yu has borrowed $500.00" in the result display. Current debt and total debt should increase by $500. Debt repayment progress bar should decrease.
+. `borrow 1 0`
+** Should show "MASTERLIST: Bernice Yu has borrowed $0.00" in the result display. Current debt and total debt should remain the same.
+. `borrow 1 -100`
+** Should show invalid command format message in the result display.
+. `select 2`
+. `borrow 200`
+** Should show "MASTERLIST: Alex Yeoh has borrowed $200.00" in the result display. Current debt and total debt should increase by $200. Debt repayment progress bar should remain unchanged.
+
+==== Payback money
+. `payback 4 500`
+** Should show "Amount paid back cannot be more than the debt owed" in the result display.
+. `payback 4 100`
+** Should show "MASTERLIST: Charlotte Oliveiro has paid $100.00 back" in the result display. Current debt should decrease by $100. Debt repayment progress bar should increase.
+. `payback 5 0`
+** Should show "MASTERLIST: Eileen Choo has paid $0.00 back" in the result display. Current debt should remain the same.
+. `payback 5 -100`
+** Should show invalid command format message in the result display.
+. `select 6`
+. `payback 200`
+** Should show "MASTERLIST: Irfan Ibrahim has paid $200.00 back" in the result display. Current debt should decrease by $200. Debt repayment progress bar should increase.
+
