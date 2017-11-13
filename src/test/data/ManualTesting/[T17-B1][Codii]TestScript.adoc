@@ -118,7 +118,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `delete 22`
 ** Better Crowe should be deleted from the address book.
 . `select 21`
-** Selected John Doe.
+** The twenty first person, John Doe, should be selected.
 . `d`
 ** John Doe should be deleted from the address book.
 
@@ -140,7 +140,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `undo`
 ** Charlotte Oliveiro’s `postal code` and `general location` should be restored to "560011" and "Bishan, Ang Mo Kio" respectively.
 . `undo`
-** Alice Pauline should be renamed to Bernice Yu.
+** Alice Pauline should be renamed to "Bernice Yu".
 . `undo`
 ** John Doe should be in the address book.
 
@@ -167,7 +167,6 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Person list panel should be empty.
 . `find li yu`
 ** Person list panel should show Bernice and David.
-
 
 ==== Displaying different lists
 . `list`
@@ -236,7 +235,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 
 ==== Setting a path to the profile pictures folder and adding/deleting profile pictures
 [NOTE]
-Enter the folder named `profilepic`, located in the same directory as codii.jar, and right click on any of the images. Click on `Properties` and copy the `Location` path.
+Go into the folder named `profilepic`, located in the same directory as codii.jar, and right click on any of the images. Click on `Properties` and copy the `Location` path.
 
 . `list`
 . `setpath C:/invalid/path/`
