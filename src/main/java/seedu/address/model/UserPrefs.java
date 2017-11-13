@@ -79,7 +79,6 @@ public class UserPrefs {
     }
 
     //@@author
-
     public void setAdminPassword(String adminPassword) {
         byte[] salt = getSalt();
         String hashedPassword = getSha512SecurePassword(adminPassword, salt);

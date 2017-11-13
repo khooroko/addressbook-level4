@@ -53,7 +53,7 @@ public class ListObserver {
 
     /**
      * Monitors current displayed list on person list panel.
-     * Updates the current displayed list with {@param predicate}
+     * @param predicate is used to update the current displayed list.
      * @return updated version of the current displayed list.
      */
     public static int updateCurrentFilteredList(Predicate<ReadOnlyPerson> predicate) {

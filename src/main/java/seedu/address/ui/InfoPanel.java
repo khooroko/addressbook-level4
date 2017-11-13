@@ -296,11 +296,13 @@ public class InfoPanel extends UiPart<Region> {
         personInfoPanel.setContent(content);
     }
 
+    //@@author jaivigneshvenugopal
     @Subscribe
     private void handleChangeInternalListEvent(ChangeInternalListEvent event) {
         unregisterAsAnEventHandler(this);
     }
 
+    //@@author
     @Subscribe
     private void handleDeselectionEvent(DeselectionEvent event) {
         loadDefaultPage();

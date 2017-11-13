@@ -107,8 +107,8 @@ public class TypicalPersons {
             .withDeadline(Deadline.NO_DEADLINE_SET).withHandphone("94823442").withInterest(Interest.NO_INTEREST_SET)
             .withEmail("anna@example.com").withAddress("4th street").withHomePhone("63333303")
             .withPostalCode("111111").withDebt("0").withTotalDebt("123456").withOfficePhone("60000030").build();
-    //@@author
 
+    //@@author
     // Overduelist persons.
     public static final ReadOnlyPerson KENNARD = new PersonBuilder().withName("Kennard")
             .withDeadline("11-11-2015").withHandphone("94823442").withInterest(Interest.NO_INTEREST_SET)
@@ -127,7 +127,6 @@ public class TypicalPersons {
             .withDebt("7890").withTotalDebt("7890").withHomePhone("62220222").withInterest(Interest.NO_INTEREST_SET)
             .withDeadline(Deadline.NO_DEADLINE_SET).withAddress("chicago ave")
             .withOfficePhone(OfficePhone.NO_OFFICE_PHONE_SET).build();
-    //@@author
 
     // Manually added - Person's details found in {@code CommandTestUtil}
     public static final ReadOnlyPerson AMY = new PersonBuilder().withName(VALID_NAME_AMY)
@@ -146,6 +145,7 @@ public class TypicalPersons {
 
     private TypicalPersons() {} // prevents instantiation
 
+    //@@author jaivigneshvenugopal
     /**
      * Returns an {@code AddressBook} with all the typical persons.
      */
@@ -187,7 +187,6 @@ public class TypicalPersons {
     public static List<ReadOnlyPerson> getTypicalWhitelistedPersons() {
         return new ArrayList<>(Arrays.asList(ARCHANA, SIRISHA, RUSHAN));
     }
-    //@@author
 
     //@@author lawwman
     public static List<ReadOnlyPerson> getTypicalOverdueListPersons() {

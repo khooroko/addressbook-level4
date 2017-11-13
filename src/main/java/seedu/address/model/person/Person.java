@@ -397,6 +397,7 @@ public class Person implements ReadOnlyPerson {
 
     //@@author
 
+    //@@author jaivigneshvenugopal
     /**
      * Returns boolean status of a person's display picture status.
      */
@@ -413,7 +414,6 @@ public class Person implements ReadOnlyPerson {
         this.hasDisplayPicture = hasDisplayPicture;
     }
 
-    //@@author jaivigneshvenugopal
     /**
      * Sets date repaid of a person in the given {@code dateRepaid}.
      * @param dateRepaid must not be null.

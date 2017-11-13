@@ -103,7 +103,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     //@@author jaivigneshvenugopal
     /**
      * Adds a person to the blacklist in the address book.
-     * @return ReadOnly newBlacklistedPerson
+     * @return the newly blacklisted person
      */
     public ReadOnlyPerson addBlacklistedPerson(ReadOnlyPerson p) {
         int index;
@@ -124,7 +124,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     /**
      * Adds a person to the whitelist in the address book.
-     * @return ReadOnly newWhitelistedPerson
+     * @return the newly whitelisted person
      */
     public ReadOnlyPerson addWhitelistedPerson(ReadOnlyPerson p) {
         int index;
@@ -141,7 +141,6 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
         return persons.getReadOnlyPerson(index);
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -228,7 +227,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     //@@author jaivigneshvenugopal
     /**
      * Updates {@code key} to exclude {@code key} from the blacklist in this {@code AddressBook}.
-     * @return ReadOnly newUnBlacklistedPerson
+     * @return the newly blacklisted person.
      * @throws PersonNotFoundException if the {@code key} is not in this {@code AddressBook}.
      */
     public ReadOnlyPerson removeBlacklistedPerson(ReadOnlyPerson key) throws PersonNotFoundException {
@@ -256,7 +255,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     /**
      * Updates {@code key} to exclude {@code key} from the whitelist in this {@code AddressBook}.
-     * @return ReadOnly newWhitelistedPerson
+     * @return the newly whitelisted person
      * @throws PersonNotFoundException if the {@code key} is not in this {@code AddressBook}.
      */
     public ReadOnlyPerson removeWhitelistedPerson(ReadOnlyPerson key) throws PersonNotFoundException {
@@ -274,7 +273,6 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
         return persons.getReadOnlyPerson(index);
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -391,7 +389,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         return persons.getReadOnlyPerson(index);
     }
 
-    //@@author
+    //@@author jaivigneshvenugopal
     /**
      * Resets person's debt field to zero, in the masterlist of the addressbook.
      * @return ReadOnly existingPerson
@@ -469,6 +467,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
         return persons.getReadOnlyPerson(index);
     }
+
     //@@author jaivigneshvenugopal
     /**
      * Adds the picture of the person into app database and sets the person's display picture boolean status to true

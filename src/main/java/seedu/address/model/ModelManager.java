@@ -125,8 +125,8 @@ public class ModelManager extends ComponentManager implements Model {
     public void setCurrentListName(String currentList) {
         this.currentList = currentList;
     }
-    //@@author
 
+    //@@author
     /** Raises an event to indicate the model has changed */
     private void indicateAddressBookChanged() {
         raise(new AddressBookChangedEvent(addressBook));
@@ -169,7 +169,6 @@ public class ModelManager extends ComponentManager implements Model {
         indicateAddressBookChanged();
         return whitelistedPerson;
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -242,7 +241,6 @@ public class ModelManager extends ComponentManager implements Model {
         indicateAddressBookChanged();
         return whitelistedPerson;
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -305,7 +303,6 @@ public class ModelManager extends ComponentManager implements Model {
     public void syncWhitelist() {
         filteredWhitelistedPersons = new FilteredList<>(this.addressBook.getWhitelistedPersonList());
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -399,7 +396,6 @@ public class ModelManager extends ComponentManager implements Model {
         setCurrentListName(listName);
         raise(new ChangeInternalListEvent(listName));
     }
-    //@@author
 
     //@@author lawwman
     @Override
@@ -506,7 +502,6 @@ public class ModelManager extends ComponentManager implements Model {
         filteredWhitelistedPersons.setPredicate(currentPredicate);
         return FXCollections.unmodifiableObservableList(filteredWhitelistedPersons);
     }
-    //@@author
 
     //@@author lawwman
     /**
@@ -554,7 +549,6 @@ public class ModelManager extends ComponentManager implements Model {
         filteredWhitelistedPersons.setPredicate(predicate);
         return filteredWhitelistedPersons.size();
     }
-    //@@author
 
     //@@author lawwman
     /**

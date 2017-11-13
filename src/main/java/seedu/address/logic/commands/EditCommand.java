@@ -126,6 +126,7 @@ public class EditCommand extends UndoableCommand {
         return new CommandResult(currentList + String.format(MESSAGE_EDIT_PERSON_SUCCESS, editedPerson.getName()));
     }
 
+    //@@author jaivigneshvenugopal
     /**
      * Does the appropriate list status checks on {@code personToEdit}
      * and changes the list status of {@code editedPerson} accordingly
@@ -160,6 +161,8 @@ public class EditCommand extends UndoableCommand {
         }
         return editedPerson;
     }
+
+    //@@author
 
     /**
      * Creates and returns a {@code Person} with the details of {@code personToEdit}
