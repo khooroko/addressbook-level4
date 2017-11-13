@@ -266,7 +266,10 @@ Format: `payback [INDEX] AMOUNT`
 * If no index is specified, the debt of the currently selected person is updated instead.
 * `AMOUNT` has to be in dollars and cents. For example: `600.15` which represents $600.15.
 * `AMOUNT` repaid cannot be more than the debt owed by the person at the specifiec `INDEX`.
-* If a person fully repays his/her debts, the date repaid will be set to the day that this command was entered. Also, the person will be listed in the whitelist if he/she is not blacklisted.
+* If a person fully repays his/her debts:
+** The person will be listed in the whitelist if he/she is not blacklisted.
+** The person's date repaid will be set to the day that this command was entered.
+** If the person was in the overdue list, he/she would be removed.
 ****
 
 Examples:
@@ -290,6 +293,7 @@ Format: `repaid [INDEX]`
 ****
 * Resets the debt of the person at the specified `INDEX` to zero. The index refers to the index number shown in the last person listing. The index *must be a positive integer* (e.g. 1, 2, 3, …​)
 * If no index is specified, the debt of the currently selected person is resetted instead.
+* The person will also be sent to the whitelist.
 ****
 
 Examples:
@@ -430,12 +434,12 @@ Pressing the kbd:[&uarr;] and kbd:[&darr;] arrows will display the previous and 
 // tag::sort[]
 === Sorting all contacts : `sort`
 
-Sorts all the contacts in the address book in specified order. If no order is specified, the contacts are sorted in ascending lexographical order. +
+Sorts all the contacts in the address book in specified order. +
 Format: `sort [ORDERING]`
 
 ****
 * Valid orderings are: `name`, `cluster`, `deadline` and `debt`.
-* If no ordering is specified, the address book will be sorted by name.
+* If no ordering is specified, the address book will be sorted by name in lexicographical order.
 ****
 
 Examples:
