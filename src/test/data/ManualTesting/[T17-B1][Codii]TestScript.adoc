@@ -44,6 +44,8 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Should show "Unable to log into Address Book" in result display.
 . `login loanShark97 hitMeUp123`
 ** Should log in successfully.
+. `login     loanShark97       hitMeUp123`
+** Should show invalid command format message in result display and incorrect masking of password.
 . `logout`
 ** Should return to the login screen.
 
