@@ -2,7 +2,7 @@
 ###### \java\guitests\guihandles\MainWindowHandle.java
 ``` java
     /**
-     * Logs into admin user account so that other GUI tests can test the main GUIs in the address book
+     * Logs into sample user account so that other GUI tests can test the main GUIs in the address book.
      */
     public static void simulateLogin() {
         try {
@@ -18,53 +18,15 @@
         }
     }
 ```
-###### \java\guitests\guihandles\StartUpPanelHandle.java
-``` java
-/**
- * A handler for the {@code StartUpPanel} of the UI
- */
-public class StartUpPanelHandle extends NodeHandle<Node> {
-
-    public static final String WELCOME_MESSAGE_ID = "#welcomeMessage";
-    public static final String LOGIN_INSTRUCTION_ID = "#loginInstruction";
-    public static final String LOGIN_FORMAT_ID = "#loginFormat";
-
-    private Text welcomeMessage;
-    private Text loginInstruction;
-    private Text loginFormat;
-
-    public StartUpPanelHandle(Node startUpPanelNode) {
-        super(startUpPanelNode);
-
-        welcomeMessage = getChildNode(WELCOME_MESSAGE_ID);
-        loginInstruction = getChildNode(LOGIN_INSTRUCTION_ID);
-        loginFormat = getChildNode(LOGIN_FORMAT_ID);
-    }
-
-    /**
-     * Returns the text in the start up panel.
-     */
-    public String getText() {
-        String text = "" + welcomeMessage.getText() + loginInstruction.getText() + loginFormat.getText();
-        return text;
-    }
-
-}
-```
 ###### \java\seedu\address\logic\commands\BorrowCommandTest.java
 ``` java
 /**
- * Contains integration tests (interaction with the Model) and unit tests for BorrowCommand.
+ * Contains integration tests (interaction with the Model) and unit tests for {@code BorrowCommand}.
  */
-public class BorrowCommandTest {
+public class BorrowCommandTest extends CommandTest {
 
     private static final String VALID_DEBT_FIGURE = "5000000.50";
     private static final String INVALID_DEBT_FIGURE = "-5000000.50";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
     public void execute_successfulBorrowing() {
@@ -79,65 +41,61 @@ public class BorrowCommandTest {
             BorrowCommand borrowCommand = prepareCommand(INDEX_FIRST_PERSON, new Debt(VALID_DEBT_FIGURE));
 
             assertCommandSuccess(borrowCommand, model, expectedMessage, expectedModel);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
-        } catch (PersonNotFoundException pnfe) {
-            pnfe.printStackTrace();
+        } catch (IllegalValueException | PersonNotFoundException | CommandException e) {
+            e.printStackTrace();
         }
     }
 
     @Test
-    public void execute_unsuccessfulBorrowing() throws IllegalValueException {
+    public void execute_unsuccessfulBorrowing() throws Exception {
         // Only case where borrowing fails is when debt amount is entered incorrectly
         thrown.expect(IllegalValueException.class);
         thrown.expectMessage(Debt.MESSAGE_DEBT_CONSTRAINTS);
-
-        Debt debtAmount = new Debt(INVALID_DEBT_FIGURE);
+        prepareCommand(INDEX_FIRST_PERSON, new Debt(INVALID_DEBT_FIGURE));
+        fail(UNEXPECTED_EXECTION);
     }
 
 ```
 ###### \java\seedu\address\logic\commands\BorrowCommandTest.java
 ``` java
     @Test
-    public void equals() {
-        try {
-            BorrowCommand borrowFirstCommand = new BorrowCommand(INDEX_FIRST_PERSON, new Debt("50000"));
-            BorrowCommand borrowSecondCommand = new BorrowCommand(INDEX_SECOND_PERSON, new Debt("20000"));
-            BorrowCommand borrowThirdCommand = new BorrowCommand(new Debt("20000"));
+    public void equals() throws Exception {
+        BorrowCommand borrowFirstCommand = new BorrowCommand(INDEX_FIRST_PERSON, new Debt("50000"));
+        BorrowCommand borrowSecondCommand = new BorrowCommand(INDEX_SECOND_PERSON, new Debt("20000"));
 
-            // same object -> returns true
-            assertTrue(borrowFirstCommand.equals(borrowFirstCommand));
-            assertTrue(borrowThirdCommand.equals(borrowThirdCommand));
+        // same object -> returns true
+        assertTrue(borrowFirstCommand.equals(borrowFirstCommand));
 
-            // same values -> returns true
-            BorrowCommand borrowFirstCommandCopy = new BorrowCommand(INDEX_FIRST_PERSON, new Debt("50000"));
-            assertTrue(borrowFirstCommand.equals(borrowFirstCommandCopy));
+        // same values -> returns true
+        BorrowCommand borrowFirstCommandCopy = new BorrowCommand(INDEX_FIRST_PERSON, new Debt("50000"));
+        assertTrue(borrowFirstCommand.equals(borrowFirstCommandCopy));
 
-            // different types -> returns false
-            assertFalse(borrowFirstCommand.equals(1));
+        // different types -> returns false
+        assertFalse(borrowFirstCommand.equals(1));
 
-            // null -> returns false
-            assertFalse(borrowFirstCommand.equals(null));
+        // null -> returns false
+        assertFalse(borrowFirstCommand.equals(null));
 
-            // different person -> returns false
-            assertFalse(borrowFirstCommand.equals(borrowSecondCommand));
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
-        }
+        // different person -> returns false
+        assertFalse(borrowFirstCommand.equals(borrowSecondCommand));
     }
 
     /**
-     * Prepares a {@code BorrowCommand}.
+     * Returns a {@code BorrowCommand} with the parameter {@code index}.
      */
-    private BorrowCommand prepareCommand(Index index, Debt debt) {
-        BorrowCommand command = null;
-        if (index == null) {
-            command = new BorrowCommand(debt);
-        } else {
-            command = new BorrowCommand(index, debt);
-        }
-        command.setData(model, new CommandHistory(), new UndoRedoStack());
-        return command;
+    private BorrowCommand prepareCommand(Index index, Debt debt) throws CommandException {
+        BorrowCommand borrowCommand = new BorrowCommand(index, debt);
+        borrowCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return borrowCommand;
+    }
+
+    /**
+     * Returns a {@code BorrowCommand} with no parameters.
+     */
+    private BorrowCommand prepareCommand(Debt debt) throws CommandException {
+        BorrowCommand borrowCommand = new BorrowCommand(debt);
+        borrowCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return borrowCommand;
     }
 }
 ```
@@ -163,12 +121,10 @@ public class BorrowCommandTest {
 /**
  * Contains integration tests (interaction with the Model) for {@code FilterCommand}.
  */
-public class FilterCommandTest {
+public class FilterCommandTest extends CommandTest {
     public static final String ONE_OR_MORE_SPACES_REGEX = "\\s+";
     public static final String[] SAMPLE_TAGS = "violent friendly".split(ONE_OR_MORE_SPACES_REGEX);
     public static final String[] SAMPLE_TAG = {"cooperative"};
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
     public void equals() {
@@ -246,21 +202,19 @@ public class FilterCommandTest {
     private void assertCommandSuccess(FilterCommand command, String expectedMessage,
                                       List<ReadOnlyPerson> expectedList) {
         AddressBook expectedAddressBook = new AddressBook(model.getAddressBook());
-        try {
-            CommandResult commandResult = command.execute();
-            assertEquals(expectedMessage, commandResult.feedbackToUser);
-            assertEquals(expectedList, model.getFilteredPersonList());
-            assertEquals(expectedAddressBook, model.getAddressBook());
-        } catch (CommandException ce) {
-            ce.printStackTrace();
-        }
+        CommandResult commandResult = command.execute();
+        assertEquals(expectedMessage, commandResult.feedbackToUser);
+        assertEquals(expectedList, model.getFilteredPersonList());
+        assertEquals(expectedAddressBook, model.getAddressBook());
     }
 }
 ```
 ###### \java\seedu\address\logic\commands\LoginCommandTest.java
 ``` java
-public class LoginCommandTest {
-
+/**
+ * Contains integration tests (interaction with the Model) for {@code LoginCommand}.
+ */
+public class LoginCommandTest extends CommandTest {
     private static final String TEST_USERNAME = "TESTloanShark97";
     private static final String TEST_PASSWORD = "TESThitMeUp123";
     private final boolean hasLoggedIn = true;
@@ -323,13 +277,13 @@ public class LoginCommandTest {
     }
 
     /**
-     * Parses {@code uname} and {@pwd} into a {@code LoginCommand}.
+     * Parses {@code usernameInput} and {@passwordInput} into a {@code LoginCommand}.
      */
-    private LoginCommand prepareCommand(String uname, String pwd) {
+    private LoginCommand prepareCommand(String usernameInput, String passwordInput) {
         LoginCommand command = null;
         try {
-            Username username = new Username(uname);
-            Password password = new Password(pwd);
+            Username username = new Username(usernameInput);
+            Password password = new Password(passwordInput);
             command = new LoginCommand(username, password);
             command.setData(model, new CommandHistory(), new UndoRedoStack());
         } catch (IllegalValueException ive) {
@@ -341,7 +295,10 @@ public class LoginCommandTest {
 ```
 ###### \java\seedu\address\logic\commands\LogoutCommandTest.java
 ``` java
-public class LogoutCommandTest {
+/**
+ * Contains integration tests (interaction with the Model) for {@code LogoutCommand}.
+ */
+public class LogoutCommandTest extends CommandTest {
     @Rule
     public final EventsCollectorRule eventsCollectorRule = new EventsCollectorRule();
 
@@ -360,9 +317,9 @@ public class LogoutCommandTest {
 ###### \java\seedu\address\logic\commands\PaybackCommandTest.java
 ``` java
 /**
- * Contains integration tests (interaction with the Model) and unit tests for PaybackCommand.
+ * Contains integration tests (interaction with the Model) and unit tests for {@code PaybackCommand}.
  */
-public class PaybackCommandTest {
+public class PaybackCommandTest extends CommandTest {
 
     private static final String VALID_DEBT_FIGURE = "5000000.50";
     private static final String INVALID_DEBT_FIGURE = "-5000000.50";
@@ -370,10 +327,8 @@ public class PaybackCommandTest {
     private static final String MESSAGE_INVALID_FORMAT =  String.format(MESSAGE_INVALID_COMMAND_FORMAT,
             PaybackCommand.MESSAGE_USAGE);
 
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-
     @Test
-    public void execute_successfulPayback() {
+    public void execute_payback_success() {
         ReadOnlyPerson personWhoPayback = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
                 + String.format(PaybackCommand.MESSAGE_PAYBACK_SUCCESS,
@@ -384,10 +339,8 @@ public class PaybackCommandTest {
 
             PaybackCommand paybackCommand = prepareCommand(INDEX_FIRST_PERSON, new Debt(VALID_DEBT_FIGURE));
             assertCommandSuccess(paybackCommand, model, expectedMessage, expectedModel);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
-        } catch (PersonNotFoundException pnfe) {
-            pnfe.printStackTrace();
+        } catch (IllegalValueException | PersonNotFoundException | CommandException e) {
+            e.printStackTrace();
         }
     }
 
@@ -395,57 +348,49 @@ public class PaybackCommandTest {
 ###### \java\seedu\address\logic\commands\PaybackCommandTest.java
 ``` java
     @Test
-    public void execute_unsuccessfulPayback_dueToInvalidFigure() {
-        try {
-            PaybackCommand paybackCommand = prepareCommand(INDEX_FIRST_PERSON, new Debt(INVALID_DEBT_FIGURE));
-            assertCommandFailure(paybackCommand, model, MESSAGE_INVALID_FORMAT);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
-        }
+    public void execute_invalidDebtFigure_failure() throws Exception {
+        thrown.expect(IllegalValueException.class);
+        thrown.expectMessage(Debt.MESSAGE_DEBT_CONSTRAINTS);
+        prepareCommand(INDEX_FIRST_PERSON, new Debt(INVALID_DEBT_FIGURE));
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void execute_unsuccessfulPayback_dueToAmountExceedingDebtOwed() {
+    public void execute_amountExceedDebtOwed_failure() {
         try {
             PaybackCommand paybackCommand = prepareCommand(INDEX_FIRST_PERSON, new Debt(ENORMOUS_DEBT_FIGURE));
             assertCommandFailure(paybackCommand, model, PaybackCommand.MESSAGE_PAYBACK_FAILURE);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
+        } catch (IllegalValueException | CommandException e) {
+            e.printStackTrace();
         }
     }
 
     @Test
-    public void equals() {
-        try {
-            PaybackCommand paybackFirstCommand = new PaybackCommand(INDEX_FIRST_PERSON, new Debt("500"));
-            PaybackCommand paybackSecondCommand = new PaybackCommand(INDEX_SECOND_PERSON, new Debt("300"));
-            PaybackCommand paybackThirdCommand = new PaybackCommand(new Debt("200"));
+    public void equals() throws Exception {
+        PaybackCommand paybackFirstCommand = new PaybackCommand(INDEX_FIRST_PERSON, new Debt("500"));
+        PaybackCommand paybackSecondCommand = new PaybackCommand(INDEX_SECOND_PERSON, new Debt("300"));
 
-            // same object -> returns true
-            assertTrue(paybackFirstCommand.equals(paybackFirstCommand));
-            assertTrue(paybackThirdCommand.equals(paybackThirdCommand));
+        // same object -> returns true
+        assertTrue(paybackFirstCommand.equals(paybackFirstCommand));
 
-            // same values -> returns true
-            PaybackCommand paybackFirstCommandCopy = new PaybackCommand(INDEX_FIRST_PERSON, new Debt("500"));
-            assertTrue(paybackFirstCommand.equals(paybackFirstCommandCopy));
+        // same values -> returns true
+        PaybackCommand paybackFirstCommandCopy = new PaybackCommand(INDEX_FIRST_PERSON, new Debt("500"));
+        assertTrue(paybackFirstCommand.equals(paybackFirstCommandCopy));
 
-            // different types -> returns false
-            assertFalse(paybackFirstCommand.equals(1));
+        // different types -> returns false
+        assertFalse(paybackFirstCommand.equals(1));
 
-            // null -> returns false
-            assertFalse(paybackFirstCommand.equals(null));
+        // null -> returns false
+        assertFalse(paybackFirstCommand.equals(null));
 
-            // different person -> returns false
-            assertFalse(paybackFirstCommand.equals(paybackSecondCommand));
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
-        }
+        // different person -> returns false
+        assertFalse(paybackFirstCommand.equals(paybackSecondCommand));
     }
 
     /**
      * Prepares a {@code PaybackCommand}.
      */
-    private PaybackCommand prepareCommand(Index index, Debt debt) {
+    private PaybackCommand prepareCommand(Index index, Debt debt) throws CommandException {
         PaybackCommand command = null;
         if (index == null) {
             command = new PaybackCommand(debt);
@@ -459,7 +404,7 @@ public class PaybackCommandTest {
 ```
 ###### \java\seedu\address\logic\parser\BorrowCommandParserTest.java
 ``` java
-public class BorrowCommandParserTest {
+public class BorrowCommandParserTest extends CommandTest {
 
     private static final String MESSAGE_INVALID_FORMAT =  String.format(MESSAGE_INVALID_COMMAND_FORMAT,
             BorrowCommand.MESSAGE_USAGE);
@@ -471,13 +416,13 @@ public class BorrowCommandParserTest {
     private BorrowCommandParser parser  = new BorrowCommandParser();
 
     @Test
-    public void parse_missingParts_failure() {
+    public void parse_missingParts_failure() throws Exception {
         // no index and no field specified
         assertParseFailure(parser, "", MESSAGE_INVALID_FORMAT);
     }
 
     @Test
-    public void parse_invalidArguments() {
+    public void parse_invalidArguments() throws Exception {
         // invalid index and amount
         assertParseFailure(parser, INVALID_INDEX + " " + INVALID_DEBT_FIGURE, MESSAGE_INVALID_FORMAT);
 
@@ -486,6 +431,11 @@ public class BorrowCommandParserTest {
 
         // invalid index but valid amount
         assertParseFailure(parser, INVALID_INDEX + " " + VALID_DEBT_FIGURE, MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_invalidNumberOfArguments_failure() {
+        assertParseFailure(parser, "1 200 300", MESSAGE_INVALID_FORMAT);
     }
 
     @Test
@@ -499,8 +449,8 @@ public class BorrowCommandParserTest {
             amount = new Debt(VALID_DEBT_FIGURE);
             expectedBorrowCommand = new BorrowCommand(amount);
             assertParseSuccess(parser, VALID_DEBT_FIGURE, expectedBorrowCommand);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
+        } catch (IllegalValueException | CommandException e) {
+            e.printStackTrace();
         }
     }
 }
@@ -511,13 +461,13 @@ public class FilterCommandParserTest {
     private FilterCommandParser parser = new FilterCommandParser();
 
     @Test
-    public void parse_emptyArg_throwsParseException() {
+    public void parse_emptyArg_throwsParseException() throws Exception {
         assertParseFailure(parser, "     ", String.format(MESSAGE_INVALID_COMMAND_FORMAT,
                 FilterCommand.MESSAGE_USAGE));
     }
 
     @Test
-    public void parse_validArgs_returnsFilterCommand() {
+    public void parse_validArgs_returnsFilterCommand() throws Exception {
         // no leading and trailing whitespaces
         FilterCommand expectedFilterCommand = new FilterCommand(Arrays.asList("violent", "friendly"));
         assertParseSuccess(parser, "violent friendly", expectedFilterCommand);
@@ -545,39 +495,77 @@ public class FilterCommandParserTest {
 ###### \java\seedu\address\logic\parser\LoginCommandParserTest.java
 ``` java
 public class LoginCommandParserTest {
+    private static final String VALID_USERNAME = "User_1234";
+    private static final String VALID_PASSWORD = "P@$$worD";
+    private static final String GUI_LOGIN_ARGS = " " + "%1$s" + SEPARATOR + "%2$s" + SEPARATOR;
 
     private LoginCommandParser parser = new LoginCommandParser();
 
     @Test
-    public void parse_validArgs_returnsLoginCommand() {
-        String validUsername = "User_1234";
-        String validPassword = "P@$$worD";
+    public void cliParse_validArgs_returnsLoginCommand() {
+        setShowingLoginView(false);
 
         try {
             LoginCommand expectedLoginCommand =
-                    new LoginCommand(new Username(validUsername), new Password(validPassword));
+                    new LoginCommand(new Username(VALID_USERNAME), new Password(VALID_PASSWORD));
 
             //no leading and trailing whitespaces
-            assertParseSuccess(parser, validUsername + " " + validPassword, expectedLoginCommand);
+            assertParseSuccess(parser, VALID_USERNAME + " " + VALID_PASSWORD, expectedLoginCommand);
 
             // with leading and trailing whitespaces
-            assertParseSuccess(parser, validUsername + " " + validPassword + " ", expectedLoginCommand);
+            assertParseSuccess(parser, VALID_USERNAME + " " + VALID_PASSWORD + " ", expectedLoginCommand);
         } catch (IllegalValueException ive) {
             ive.printStackTrace();
         }
     }
 
     @Test
-    public void parse_invalidArgs_returnsLoginCommand() {
+    public void cliParse_invalidArgs() {
+        setShowingLoginView(false);
+        // empty input
         assertParseFailure(parser, "    ", String.format(
                 MESSAGE_INVALID_COMMAND_FORMAT, LoginCommand.MESSAGE_USAGE));
+
+        // invalid username
+        assertParseFailure(parser, "%&^%&$bhh" + " " + TEST_PASSWORD, MESSAGE_USERNAME_CHARACTERS_CONSTRAINTS);
+
+        // invalid password
+        assertParseFailure(parser, TEST_USERNAME + " " + "123", MESSAGE_PASSWORD_LENGTH_CONSTRAINTS);
     }
 
+    @Test
+    public void guiParse_validArgs_returnsLoginCommand() {
+        setShowingLoginView(true);
+
+        try {
+            LoginCommand expectedLoginCommand =
+                    new LoginCommand(new Username(VALID_USERNAME), new Password(VALID_PASSWORD));
+
+            assertParseSuccess(parser,
+                    String.format(GUI_LOGIN_ARGS, VALID_USERNAME, VALID_PASSWORD), expectedLoginCommand);
+        } catch (IllegalValueException ive) {
+            ive.printStackTrace();
+        }
+    }
+
+    @Test
+    public void guiParse_invalidArgs() {
+        setShowingLoginView(true);
+
+        // no username
+        assertParseFailure(parser, String.format(GUI_LOGIN_ARGS, "", TEST_PASSWORD), EMPTY_USERNAME_MESSAGE);
+
+        // no password
+        assertParseFailure(parser, String.format(GUI_LOGIN_ARGS, TEST_USERNAME, ""), EMPTY_PASSWORD_MESSAGE);
+
+        // no username and password
+        assertParseFailure(parser, String.format(GUI_LOGIN_ARGS, "", ""), EMPTY_USERNAME_MESSAGE);
+    }
 }
 ```
 ###### \java\seedu\address\logic\parser\PaybackCommandParserTest.java
 ``` java
-public class PaybackCommandParserTest {
+public class PaybackCommandParserTest extends CommandTest {
 
     private static final String MESSAGE_INVALID_FORMAT =  String.format(MESSAGE_INVALID_COMMAND_FORMAT,
             PaybackCommand.MESSAGE_USAGE);
@@ -595,6 +583,11 @@ public class PaybackCommandParserTest {
     }
 
     @Test
+    public void parse_invalidNumberOfArguments_failure() {
+        assertParseFailure(parser, "1 200 300", MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
     public void parse_invalidArguments() {
         // invalid index and amount
         assertParseFailure(parser, INVALID_INDEX + " " + INVALID_DEBT_FIGURE, MESSAGE_INVALID_FORMAT);
@@ -604,21 +597,26 @@ public class PaybackCommandParserTest {
 
         // invalid index but valid amount
         assertParseFailure(parser, INVALID_INDEX + " " + VALID_DEBT_FIGURE, MESSAGE_INVALID_FORMAT);
+
+        // without index but invalid amount
+        assertParseFailure(parser, " " + INVALID_DEBT_FIGURE, MESSAGE_INVALID_FORMAT);
     }
 
     @Test
-    public void parse_validArguments() {
+    public void parse_validArguments() throws Exception {
         try {
+            //valid arguments with index
             Index index = Index.fromOneBased(Integer.valueOf(VALID_INDEX));
             Debt amount = new Debt(VALID_DEBT_FIGURE);
             PaybackCommand expectedPaybackCommand = new PaybackCommand(index, amount);
             assertParseSuccess(parser, VALID_INDEX + " " + VALID_DEBT_FIGURE, expectedPaybackCommand);
 
+            // valid arguments without index
             amount = new Debt(VALID_DEBT_FIGURE);
             expectedPaybackCommand = new PaybackCommand(amount);
             assertParseSuccess(parser, " " + VALID_DEBT_FIGURE, expectedPaybackCommand);
-        } catch (IllegalValueException ive) {
-            ive.printStackTrace();
+        } catch (IllegalValueException | CommandException e) {
+            e.printStackTrace();
         }
     }
 }
@@ -708,12 +706,11 @@ public class UsernameTest {
 ###### \java\seedu\address\ui\CommandBoxTest.java
 ``` java
     /**
-     * Logs in to admin user account so that other GUI tests can test the main GUIs in the address book
+     * Logs into sample user account so that other GUI tests can test the main GUIs in the address book.
      */
     public void simulateLogin() {
-        Username username = null;
         try {
-            username = new Username(TEST_USERNAME);
+            Username username = new Username(TEST_USERNAME);
             Password password = new Password(TEST_PASSWORD);
             LoginCommand loginCommand = new LoginCommand(username, password);
             loginCommand.setData(model, new CommandHistory(), new UndoRedoStack());
@@ -744,6 +741,7 @@ public class PreLoginCommandBoxTest extends GuiUnitTest {
     public void setUp() {
         model = new ModelManager();
         modelManager = new ModelManager();
+        ListObserver.init(model);
 
         Logic logic = new LogicManager(model);
         adminUsername = TEST_USERNAME;
