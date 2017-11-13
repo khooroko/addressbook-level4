@@ -467,7 +467,15 @@ public class ModelManager extends ComponentManager implements Model {
             throw new ProfilePictureNotFoundException();
         }
     }
-    //@@author
+
+    public void checkAndUpdateInterest() {
+        for (ReadOnlyPerson person : allPersons) {
+            if (!person.getInterest().value.equals("No interest set.")
+                    && (person.checkLastAccruedDate(new Date()) != 0)) {
+                updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
+            }
+        }
+    }
 
 
     //=========== Filtered Person List Accessors =============================================================
@@ -652,12 +660,7 @@ public class ModelManager extends ComponentManager implements Model {
     public void handleLoginUpdateDebt(LoginAppRequestEvent event) {
         // login is successful
         if (event.getLoginStatus() == true) {
-            for (ReadOnlyPerson person : allPersons) {
-                if (!person.getInterest().value.equals("No interest set.")
-                        && (person.checkLastAccruedDate(new Date()) != 0)) {
-                    updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
-                }
-            }
+            checkAndUpdateInterest();
         }
     }
 
