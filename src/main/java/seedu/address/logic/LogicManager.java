@@ -2,9 +2,13 @@ package seedu.address.logic;
 
 import java.util.logging.Logger;
 
+import com.google.common.eventbus.Subscribe;
+
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.ComponentManager;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.events.ui.LoginAppRequestEvent;
+import seedu.address.commons.events.ui.LogoutAppRequestEvent;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.LoginCommand;
@@ -73,11 +77,16 @@ public class LogicManager extends ComponentManager implements Logic {
         return model.getAllPersons();
     }
 
-    //@@author jelneo
+    //@@author
 
     @Override
     public void clearCommandHistory() {
         history.clear();
+    }
+
+    @Override
+    public void clearUndoRedoStacks() {
+        undoRedoStack.clearUndoRedoStacks();
     }
 
     @Override
@@ -105,5 +114,24 @@ public class LogicManager extends ComponentManager implements Logic {
     @Override
     public ListElementPointer getHistorySnapshot() {
         return new ListElementPointer(history.getHistory());
+    }
+
+    //==================== Event Handling Code ===============================================================
+
+    //@@author jelneo
+    @Subscribe
+    public void handleLoginAppRequestEvent(LoginAppRequestEvent event) {
+        if (event.getLoginStatus() == true) {
+            clearCommandHistory();
+            clearUndoRedoStacks();
+        }
+    }
+
+    @Subscribe
+    public void handleLogoutAppRequestEvent(LogoutAppRequestEvent event) {
+        if (event.getLogoutStatus() == true) {
+            clearCommandHistory();
+            clearUndoRedoStacks();
+        }
     }
 }

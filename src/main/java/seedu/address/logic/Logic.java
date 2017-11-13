@@ -24,6 +24,11 @@ public interface Logic {
      */
     void clearCommandHistory();
 
+    /**
+     * Clears undo and redo stacks.
+     */
+    void clearUndoRedoStacks();
+
     /** Returns an unmodifiable view of all persons */
     ObservableList<ReadOnlyPerson> getAllPersons();
 
