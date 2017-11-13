@@ -8,7 +8,7 @@ This document will explain the step-by-step procedure to perform manual testing.
 === Downloading the application
 .  You can download the latest version of `Codii` link:https://github.com/CS2103AUG2017-T17-B1/main/releases[here]. +
 .  Make sure that the `codii.jar` is saved in a folder without any other jar files. This will be the `main` folder for your `Codii` application.
-.  Make a new folder called profilepic in the same directory as codii.jar. Obtain any two JPG file and save them in this folder. Rename the image files as "AlexYeoh.jpg" and "BerniceYu.jpg" respectively.
+.  Make a new folder called `profilepic` in the same directory as codii.jar. Obtain any two JPG file and save them in this folder. Rename the image files as "AlexYeoh.jpg" and "BerniceYu.jpg" respectively.
 
 === Loading the sample data
 [NOTE]
@@ -31,21 +31,47 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `help`
 ** Help window should open.
 . `list`
-** Should show “Please log in first” in result display.
+** Should show "Please log in first" in result display.
 . `login asde hitMeUp123`
-** Should show “Length of username cannot be less than 6 characters.” in result display.
+** Should show "Length of username cannot be less than 6 characters." in result display.
 . `login loanShark97 short`
-** Should show “Length of password cannot be less than 6 characters.” in result display.
+** Should show "Length of password cannot be less than 6 characters." in result display.
 . `login @@@@@@ hitMeUp123`
-** Should show “Username can only consist of uppercase letters (A-Z), lowercase letters (a-z), digits (0-9) and underscores (_)” in result display.
+** Should show "Username can only consist of uppercase letters (A-Z), lowercase letters (a-z), digits (0-9) and underscores (_)" in result display.
+. `login loanShark97 ?what?The//`
+** Should show "Password can only consist of uppercase letters (A-Z), lowercase letters (a-z) digits (0-9) and special characters (!@#$&()_-.+)" in result display.
 . `login fakeuser fakepassword`
-** Should show “Unable to log into Address Book” in result display.
+** Should show "Unable to log into Address Book" in result display.
 . `login loanShark97 hitMeUp123`
 ** Should log in successfully.
 . `logout`
-** Should be returned to the login screen.
+** Should return to the login screen.
 
 ==== GUI version of Login
+. `login`
+** Should show username and password fields and `Log in` and `Back to command box` buttons.
+. Enter `123456` into password field
+** Should show "Username cannot be empty" in result display.
+. Enter `123456` into username field
+** Should show "Password cannot be empty" in result display.
+. Clear username and password fields and press kbd:[Enter]
+** Should show "Username cannot be empty" in result display.
+. Enter `asde` into username field and `hitMeUp123` into password field
+** Should show "Length of username cannot be less than 6 characters." in result display.
+. Enter `loanShark97` into username field and `short` into password field
+** Should show "Length of password cannot be less than 6 characters." in result display.
+. Enter `@@@@@@` into username field and `hitMeUp123` into password field
+** Should show "Username can only consist of uppercase letters (A-Z), lowercase letters (a-z), digits (0-9) and underscores (_)" in result display.
+. Enter `loanShark97` into username field and `?what?The//` into password field
+** Should show "Password can only consist of uppercase letters (A-Z), lowercase letters (a-z) digits (0-9) and special characters (!@#$&()_-.+)" in result display.
+. Enter `fakeuser` into username field and `fakepassword` into password field
+** Should show "Unable to log into Address Book" in result display.
+. Enter `loanShark97` into username field and `hitMeUp123` into password field
+** Should log in successfully.
+. `logout`
+** Should return to the login screen.
+
+
 
 === After logging in
 
@@ -63,7 +89,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `select 4`
 ** The fourth person, Charlotte Oliveiro, should be selected.
 . `select 999`
-** Should show “The person index provided is invalid” in result display.
+** Should show "The person index provided is invalid" in result display.
 . `select 20`
 ** The last person, Timmy Zhu, should be selected.
 . `select`
@@ -76,13 +102,13 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `add`
 ** Should show invalid command format message in result display.
 . `add n/John Doe hp/9765432 home/67776747 e/johnd@example.com a/311, Clementi Ave 2, #02-25 pc/123311 d/10000 int/2 dl/11-06-2018 op/61112111 t/friendly`
-** Should show “Phone numbers can only contain numbers, and should be exactly 8 digits long” in result display.
+** Should show "Phone numbers can only contain numbers, and should be exactly 8 digits long" in result display.
 . `add n/John Doe hp/98765432 home/67776747 e/johnd a/311, Clementi Ave 2, #02-25 pc/123311 d/10000 int/2 dl/11-06-2018 op/61112111 t/friendly`
-** Should show “Person emails should be 2 alphanumeric/period strings separated by '@'” in result display.
+** Should show "Person emails should be 2 alphanumeric/period strings separated by '@'" in result display.
 . `add n/John Doe hp/98765432 home/67776747 e/johnd@example.com a/311, Clementi Ave 2, #02-25 pc/12331 d/10000 int/2 dl/11-06-2018 op/61112111 t/friendly`
-** Should show “Postal code must be exactly 6 digits long” in result display.
+** Should show "Postal code must be exactly 6 digits long" in result display.
 . `add n/John Doe hp/98765432 home/67776747 e/johnd@example.com a/311, Clementi Ave 2, #02-25 pc/123311 d/0 int/2 dl/11-06-2018 op/61112111 t/friendly`
-** Should show “Unable to add a person with no debt” in result display.
+** Should show "Unable to add a person with no debt" in result display.
 . `add n/John Doe hp/98765432 home/67776747 e/johnd@example.com a/311, Clementi Ave 2, #02-25 pc/123311 d/10000 int/2 dl/11-06-2018 op/61112111 t/friendly`
 ** John Doe should be added into the address book.
 . `add n/Betty Crowe hp/91234567 home/61234567 e/bcrowe@example.com a/312, Clementi Ave 2, #05-52 pc/123312 d/1000`
@@ -100,19 +126,19 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `edit`
 ** Should show invalid command format message in result display.
 . `edit 1 n/Alice Pauline`
-** Bernice Yu’s `name` should be changed to “Alice Pauline”
+** Bernice Yu’s `name` should be changed to "Alice Pauline"
 . `select 4`
 ** Selected Charlotte Oliveiro.
 . `edit pc/418132`
-** Charlotte Oliveiro’s `postal code` and `general location` should be changed to “418132” and “Geylang, Eunos” respectively.
+** Charlotte Oliveiro’s `postal code` and `general location` should be changed to "418132" and "Geylang, Eunos" respectively.
 . `edit 2 td/0`
-** Should show “Total debt cannot be set to zero” in result display.
+** Should show "Total debt cannot be set to zero" in result display.
 . `edit 2 td/1`
-** Should show “Total debt cannot be less than current debt” in result display.
+** Should show "Total debt cannot be less than current debt" in result display.
 
 ==== Undoing
 . `undo`
-** Charlotte Oliveiro’s `postal code` and `general location` should be restored to “560011” and “Bishan, Ang Mo Kio” respectively.
+** Charlotte Oliveiro’s `postal code` and `general location` should be restored to "560011" and "Bishan, Ang Mo Kio" respectively.
 . `undo`
 ** Alice Pauline should be renamed to Bernice Yu.
 . `undo`
@@ -155,7 +181,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `ls`
 ** Should display full masterlist in person list panel.
 
-==== Selecting contacts from “all contacts in this area” list panel
+==== Selecting contacts from "all contacts in this area" list panel
 . `select 1`
 ** Alex should be selected.
 . `nearby 2`
@@ -175,7 +201,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `borrow 1 1`
 ** Alex should be removed from the person list panel.
 . `repaid 1`
-** Should show “Gisela Tan has already repaid debt!” in result display.
+** Should show "Gisela Tan has already repaid debt!" in result display.
 
 ==== Banning contacts
 . `ban 1`
@@ -186,7 +212,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Alex Yeoh, Bernice Yu, Farhan Mohammed, Kanyee North and Nigel Tan should be in the person list panel.
 . `whitelist`
 . `ban 1`
-** Should show "WHITELIST: Gisela Tan has been added to BLACKLIST" in the result display and she disappears from the whitelist.
+** Should show "WHITELIST: Gisela Tan has been added to BLACKLIST" in the result display and she should disappear from the whitelist.
 . `overduelist`
 . `ban 1`
 ** Should show "OVERDUELIST: David Li has been added to BLACKLIST" in the result display.
