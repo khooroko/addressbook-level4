@@ -1,17 +1,115 @@
 # lawwman
-###### \java\seedu\address\logic\BlackListSyncTest.java
+###### \java\seedu\address\commons\core\ListObserverTest.java
 ``` java
-public class BlackListSyncTest {
+/**
+ * Tests the ListObserver class.
+ * It is expected that the TypicalAddressBook in the {@code TypicalPersons} class has a person residing in every list.
+ */
+public class ListObserverTest {
 
-    private static final String expectedMessage = ListObserver.BLACKLIST_NAME_DISPLAY_FORMAT
-            + BlacklistCommand.MESSAGE_SUCCESS;;
-
-    private Model model;
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Before
     public void setUp() {
-        model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
     }
+
+    @Test
+    public void checkCurrentFilteredList() {
+        model.setCurrentListName("list");
+        assertEquals(ListObserver.getCurrentFilteredList(), model.getFilteredPersonList());
+        model.setCurrentListName("blacklist");
+        assertEquals(ListObserver.getCurrentFilteredList(), model.getFilteredBlacklistedPersonList());
+        model.setCurrentListName("whitelist");
+        assertEquals(ListObserver.getCurrentFilteredList(), model.getFilteredWhitelistedPersonList());
+        model.setCurrentListName("overduelist");
+        assertEquals(ListObserver.getCurrentFilteredList(), model.getFilteredOverduePersonList());
+    }
+
+    @Test
+    public void checkCurrentListName() {
+        model.setCurrentListName("list");
+        assertEquals(ListObserver.getCurrentListName(), "MASTERLIST:\n");
+        model.setCurrentListName("blacklist");
+        assertEquals(ListObserver.getCurrentListName(), "BLACKLIST:\n");
+        model.setCurrentListName("whitelist");
+        assertEquals(ListObserver.getCurrentListName(), "WHITELIST:\n");
+        model.setCurrentListName("overduelist");
+        assertEquals(ListObserver.getCurrentListName(), "OVERDUELIST:\n");
+    }
+
+    @Test
+    public void updateCurrentFilteredListTest() {
+        Person personToFind = (Person) model.getFilteredPersonList().get(0);
+        String nameToFind = personToFind.getName().fullName;
+        String[] keywords = nameToFind.split("\\s+");
+        NameContainsKeywordsPredicate findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
+        assertEquals(ListObserver.updateCurrentFilteredList(findPredicate), 1);
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
+
+        model.setCurrentListName("blacklist");
+        // typical addressbook has blacklisted person
+        personToFind = (Person) model.getFilteredBlacklistedPersonList().get(0);
+        nameToFind = personToFind.getName().fullName;
+        keywords = nameToFind.split("\\s+");
+        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
+        assertEquals(ListObserver.updateCurrentFilteredList(findPredicate), 1);
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
+
+        model.setCurrentListName("whitelist");
+        // typical addressbook has whitelisted person
+        personToFind = (Person) model.getFilteredWhitelistedPersonList().get(0);
+        nameToFind = personToFind.getName().fullName;
+        keywords = nameToFind.split("\\s+");
+        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
+        assertEquals(ListObserver.updateCurrentFilteredList(findPredicate), 1);
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
+
+        model.setCurrentListName("overduelist");
+        // typical addressbook has overdue debt person
+        personToFind = (Person) model.getFilteredOverduePersonList().get(0);
+        nameToFind = personToFind.getName().fullName;
+        keywords = nameToFind.split("\\s+");
+        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
+        assertEquals(ListObserver.updateCurrentFilteredList(findPredicate), 1);
+    }
+
+    /**
+     * Assuming that the typicalAddressBook in the {@code model} has at least 1 person in each list
+     */
+    @Test
+    public void checkIndexOfCurrentPersonInList() {
+        model.setCurrentListName("list");
+        Person personToCheck = (Person) model.getFilteredPersonList().get(0);
+        Index indexOfPerson = ListObserver.getIndexOfPersonInCurrentList(personToCheck);
+        assertEquals(0, indexOfPerson.getZeroBased());
+
+        model.setCurrentListName("blacklist");
+        personToCheck = (Person) model.getFilteredBlacklistedPersonList().get(0);
+        indexOfPerson = ListObserver.getIndexOfPersonInCurrentList(personToCheck);
+        assertEquals(0, indexOfPerson.getZeroBased());
+
+        model.setCurrentListName("whitelist");
+        personToCheck = (Person) model.getFilteredWhitelistedPersonList().get(0);
+        indexOfPerson = ListObserver.getIndexOfPersonInCurrentList(personToCheck);
+        assertEquals(0, indexOfPerson.getZeroBased());
+
+        model.setCurrentListName("overduelist");
+        personToCheck = (Person) model.getFilteredOverduePersonList().get(0);
+        indexOfPerson = ListObserver.getIndexOfPersonInCurrentList(personToCheck);
+        assertEquals(0, indexOfPerson.getZeroBased());
+    }
+}
+```
+###### \java\seedu\address\logic\BlackListSyncTest.java
+``` java
+public class BlackListSyncTest extends CommandTest {
+
+    private static final String expectedMessage = ListObserver.BLACKLIST_NAME_DISPLAY_FORMAT
+            + BlacklistCommand.MESSAGE_SUCCESS;
 
     @Test
     public void execute_deleteCommandOnMasterlistDeletesPersonFromBlacklist_success() throws Exception {
@@ -84,7 +182,7 @@ public class BlackListSyncTest {
     /**
      * @return a {@code DeleteCommand} with the parameter {@code index}.
      */
-    private DeleteCommand prepareDeleteCommand(Index index) {
+    private DeleteCommand prepareDeleteCommand(Index index) throws CommandException {
         DeleteCommand deleteCommand = new DeleteCommand(index);
         deleteCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return deleteCommand;
@@ -93,7 +191,8 @@ public class BlackListSyncTest {
     /**
      * @return a {@code EditCommand} with the parameter {@code index} & {@code EditPersonDescriptor}.
      */
-    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) {
+    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) throws
+            CommandException {
         EditCommand editCommand = new EditCommand(index, descriptor);
         editCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return editCommand;
@@ -111,7 +210,7 @@ public class BlackListSyncTest {
     /**
      * @return a {@code BanCommand} with the parameter {@code index}.
      */
-    private BanCommand prepareBanCommand(Index index) {
+    private BanCommand prepareBanCommand(Index index) throws CommandException {
         BanCommand banCommand = new BanCommand(index);
         banCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return banCommand;
@@ -120,7 +219,7 @@ public class BlackListSyncTest {
     /**
      * @return a {@code UnbanCommand} with the parameter {@code index}.
      */
-    private UnbanCommand prepareUnbanCommand(Index index) {
+    private UnbanCommand prepareUnbanCommand(Index index) throws CommandException {
         UnbanCommand unbanCommand = new UnbanCommand(index);
         unbanCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return unbanCommand;
@@ -129,15 +228,15 @@ public class BlackListSyncTest {
 ```
 ###### \java\seedu\address\logic\commands\OverdueListCommandTest.java
 ``` java
-public class OverdueListCommandTest {
+public class OverdueListCommandTest extends CommandTest {
 
-    private Model model;
     private Model expectedModel;
     private OverdueListCommand overdueListCommand;
 
+    @Override
     @Before
     public void setUp() {
-        model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
         expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
         overdueListCommand = new OverdueListCommand();
@@ -159,107 +258,6 @@ public class OverdueListCommandTest {
     }
 }
 ```
-###### \java\seedu\address\logic\ListObserverTest.java
-``` java
-/**
- * Tests the ListObserver class.
- * It is expected that the TypicalAddressBook in the {@code TypicalPersons} class has a person residing in every list.
- */
-public class ListObserverTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-    private ListObserver listObserver = new ListObserver(model);
-
-    @Test
-    public void checkCurrentFilteredList() {
-        model.setCurrentListName("list");
-        assertEquals(listObserver.getCurrentFilteredList(), model.getFilteredPersonList());
-        model.setCurrentListName("blacklist");
-        assertEquals(listObserver.getCurrentFilteredList(), model.getFilteredBlacklistedPersonList());
-        model.setCurrentListName("whitelist");
-        assertEquals(listObserver.getCurrentFilteredList(), model.getFilteredWhitelistedPersonList());
-        model.setCurrentListName("overduelist");
-        assertEquals(listObserver.getCurrentFilteredList(), model.getFilteredOverduePersonList());
-    }
-
-    @Test
-    public void checkCurrentListName() {
-        model.setCurrentListName("list");
-        assertEquals(listObserver.getCurrentListName(), "MASTERLIST:\n");
-        model.setCurrentListName("blacklist");
-        assertEquals(listObserver.getCurrentListName(), "BLACKLIST:\n");
-        model.setCurrentListName("whitelist");
-        assertEquals(listObserver.getCurrentListName(), "WHITELIST:\n");
-        model.setCurrentListName("overduelist");
-        assertEquals(listObserver.getCurrentListName(), "OVERDUELIST:\n");
-    }
-
-    @Test
-    public void updateCurrentFilteredListTest() {
-        Person personToFind = (Person) model.getFilteredPersonList().get(0);
-        String nameToFind = personToFind.getName().fullName;
-        String[] keywords = nameToFind.split("\\s+");
-        NameContainsKeywordsPredicate findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
-        assertEquals(listObserver.updateCurrentFilteredList(findPredicate), 1);
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
-
-        model.setCurrentListName("blacklist");
-        // typical addressbook has blacklisted person
-        personToFind = (Person) model.getFilteredBlacklistedPersonList().get(0);
-        nameToFind = personToFind.getName().fullName;
-        keywords = nameToFind.split("\\s+");
-        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
-        assertEquals(listObserver.updateCurrentFilteredList(findPredicate), 1);
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
-
-        model.setCurrentListName("whitelist");
-        // typical addressbook has whitelisted person
-        personToFind = (Person) model.getFilteredWhitelistedPersonList().get(0);
-        nameToFind = personToFind.getName().fullName;
-        keywords = nameToFind.split("\\s+");
-        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
-        assertEquals(listObserver.updateCurrentFilteredList(findPredicate), 1);
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS); // reset predicate
-
-        model.setCurrentListName("overduelist");
-        // typical addressbook has overdue debt person
-        personToFind = (Person) model.getFilteredOverduePersonList().get(0);
-        nameToFind = personToFind.getName().fullName;
-        keywords = nameToFind.split("\\s+");
-        findPredicate = new NameContainsKeywordsPredicate(Arrays.asList(keywords));
-        assertEquals(listObserver.updateCurrentFilteredList(findPredicate), 1);
-    }
-
-    /**
-     * Assuming that the typicalAddressBook in the {@code model} has at least 1 person in each list
-     */
-    @Test
-    public void checkIndexOfCurrentPersonInList() {
-        model.setCurrentListName("list");
-        Person personToCheck = (Person) model.getFilteredPersonList().get(0);
-        Index indexOfPerson = listObserver.getIndexofPersonInCurrentList(personToCheck);
-        assertEquals(0, indexOfPerson.getZeroBased());
-
-        model.setCurrentListName("blacklist");
-        personToCheck = (Person) model.getFilteredBlacklistedPersonList().get(0);
-        indexOfPerson = listObserver.getIndexofPersonInCurrentList(personToCheck);
-        assertEquals(0, indexOfPerson.getZeroBased());
-
-        model.setCurrentListName("whitelist");
-        personToCheck = (Person) model.getFilteredWhitelistedPersonList().get(0);
-        indexOfPerson = listObserver.getIndexofPersonInCurrentList(personToCheck);
-        assertEquals(0, indexOfPerson.getZeroBased());
-
-        model.setCurrentListName("overduelist");
-        personToCheck = (Person) model.getFilteredOverduePersonList().get(0);
-        indexOfPerson = listObserver.getIndexofPersonInCurrentList(personToCheck);
-        assertEquals(0, indexOfPerson.getZeroBased());
-    }
-}
-```
 ###### \java\seedu\address\logic\OverdueListSyncTest.java
 ``` java
 public class OverdueListSyncTest {
@@ -272,6 +270,7 @@ public class OverdueListSyncTest {
     public void setUp() {
         //assumes that the typicalAddressBook has at least 1 person in the overdue list.
         model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
     }
 
     @Test
@@ -329,10 +328,72 @@ public class OverdueListSyncTest {
                 model.updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS));
     }
 
+    @Test
+    public void execute_repaidCommandOnMasterListRemovesPersonFromOverdueList_success() throws Exception {
+        int numberOfOverduePersons = getSizeOfTypicalOverdueListPersons();
+        assertEquals(numberOfOverduePersons, model
+                .updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS));
+
+        Person personInOverdueList = (Person) model.getFilteredOverduePersonList().get(0);
+        Index index = Index.fromZeroBased(model.getFilteredPersonList().indexOf(personInOverdueList));
+
+        Person expectedPerson = new PersonBuilder(personInOverdueList).withDebt("0.00")
+                .withDeadline(Deadline.NO_DEADLINE_SET).build();
+        expectedPerson.setDateRepaid(new DateRepaid(formatDate(new Date())));
+        expectedPerson.setHasOverdueDebt(false);
+        expectedPerson.setIsWhitelisted(true);
+
+        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.updatePerson(personInOverdueList, expectedPerson);
+        expectedModel.setCurrentListName("overduelist");
+
+        RepaidCommand repaidCommand = prepareRepaidCommand(index);
+        repaidCommand.execute();
+        model.getFilteredOverduePersonList();
+
+        OverdueListCommand overdueListCommand = prepareOverdueListCommand();
+        model.setCurrentListName("overduelist");
+
+        assertCommandSuccess(overdueListCommand, model, expectedMessage, expectedModel);
+        assertEquals(numberOfOverduePersons - 1,
+                model.updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS));
+    }
+
+    @Test
+    public void execute_paybackCommandOnMasterListRemovesPersonFromOverdueList_success() throws Exception {
+        int numberOfOverduePersons = getSizeOfTypicalOverdueListPersons();
+        assertEquals(numberOfOverduePersons, model
+                .updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS));
+
+        Person personInOverdueList = (Person) model.getFilteredOverduePersonList().get(0);
+        Index index = Index.fromZeroBased(model.getFilteredPersonList().indexOf(personInOverdueList));
+
+        Person expectedPerson = new PersonBuilder(personInOverdueList).withDebt("0.00")
+                .withDeadline(Deadline.NO_DEADLINE_SET).build();
+        expectedPerson.setDateRepaid(new DateRepaid(formatDate(new Date())));
+        expectedPerson.setHasOverdueDebt(false);
+        expectedPerson.setIsWhitelisted(true);
+
+        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.updatePerson(personInOverdueList, expectedPerson);
+        expectedModel.setCurrentListName("overduelist");
+
+        PaybackCommand paybackCommand = preparePaybackCommand(index, personInOverdueList.getDebt());
+        paybackCommand.execute();
+        model.getFilteredOverduePersonList();
+
+        OverdueListCommand overdueListCommand = prepareOverdueListCommand();
+        model.setCurrentListName("overduelist");
+
+        assertCommandSuccess(overdueListCommand, model, expectedMessage, expectedModel);
+        assertEquals(numberOfOverduePersons - 1,
+                model.updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS));
+    }
+
     /**
      * @return {@code DeleteCommand} with the parameter {@code index}.
      */
-    private DeleteCommand prepareDeleteCommand(Index index) {
+    private DeleteCommand prepareDeleteCommand(Index index) throws CommandException {
         DeleteCommand deleteCommand = new DeleteCommand(index);
         deleteCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return deleteCommand;
@@ -350,10 +411,29 @@ public class OverdueListSyncTest {
     /**
      * @return {@code EditCommand} with the parameter {@code index} & {@code EditPersonDescriptor}.
      */
-    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) {
+    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) throws
+            CommandException {
         EditCommand editCommand = new EditCommand(index, descriptor);
         editCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return editCommand;
+    }
+
+    /**
+     * Returns a {@code PaybackCommand} with the parameter {@code index} & {@code amount}.
+     */
+    private PaybackCommand preparePaybackCommand(Index index, Debt amount) throws CommandException {
+        PaybackCommand paybackCommand = new PaybackCommand(index, amount);
+        paybackCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return paybackCommand;
+    }
+
+    /**
+     * Returns a {@code RepaidCommand} with the parameter {@code index}.
+     */
+    private RepaidCommand prepareRepaidCommand(Index index) throws CommandException {
+        RepaidCommand repaidCommand = new RepaidCommand(index);
+        repaidCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return repaidCommand;
     }
 
     /**

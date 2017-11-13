@@ -9,7 +9,7 @@ public class OverdueListCommand extends Command {
     public static final String COMMAND_WORD = "overduelist";
     public static final String COMMAND_WORD_ALIAS = "ol";
 
-    public static final String MESSAGE_SUCCESS = "Listed all debtors with overdue debt.";
+    public static final String MESSAGE_SUCCESS = "Listed all debtors with overdue debt";
 
     @Override
     public CommandResult execute() {
@@ -17,7 +17,7 @@ public class OverdueListCommand extends Command {
         model.deselectPerson();
         model.changeListTo(COMMAND_WORD);
         model.updateFilteredOverduePersonList(PREDICATE_SHOW_ALL_OVERDUE_PERSONS);
-        String currentList = listObserver.getCurrentListName();
+        String currentList = ListObserver.getCurrentListName();
         return new CommandResult(currentList + MESSAGE_SUCCESS);
     }
 
@@ -143,6 +143,44 @@ public class OverdueListCommand extends Command {
     //// tag-level operations
 
 ```
+###### \java\seedu\address\model\AddressBook.java
+``` java
+    /**
+     * Reset's the person's {@code deadline} field to the default deadline.
+     * @return ReadOnly resetPerson
+     * @throws PersonNotFoundException if person does not exist in the list
+     */
+    public ReadOnlyPerson resetPersonDeadline(ReadOnlyPerson p) throws PersonNotFoundException {
+        int index;
+        index = persons.getIndexOf(p);
+
+        Person resetPerson = new Person(p);
+        try {
+            resetPerson.setDeadline(new Deadline(Deadline.NO_DEADLINE_SET));
+        } catch (IllegalValueException ive) {
+            assert false : "Given input of deadline cannot be invalid.";
+        }
+
+        persons.remove(p);
+
+        try {
+            persons.add(index, resetPerson);
+        } catch (DuplicatePersonException dpe) {
+            assert false : "There should be no duplicate when resetting the date repaid field of a person";
+        }
+
+        return persons.getReadOnlyPerson(index);
+    }
+```
+###### \java\seedu\address\model\Model.java
+``` java
+    /**
+     * Removes the {@code person} deadline.
+     * @throws PersonNotFoundException if the person is not found in addressbook
+     */
+    ReadOnlyPerson resetDeadlineForPerson(ReadOnlyPerson target) throws PersonNotFoundException;
+}
+```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
     /**
@@ -189,6 +227,33 @@ public class OverdueListCommand extends Command {
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
+    @Override
+    public void updateDebtFromInterest(ReadOnlyPerson person, int differenceInMonths) {
+        String accruedAmount = person.calcAccruedAmount(differenceInMonths);
+        try {
+            Debt amount = new Debt(accruedAmount);
+            addDebtToPerson(person, amount);
+        } catch (PersonNotFoundException pnfe) {
+            assert false : "Should not occur as person obtained from allPersons";
+        } catch (IllegalValueException ive) {
+            assert false : Debt.MESSAGE_DEBT_CONSTRAINTS;
+        }
+    }
+
+    /**
+     * Removes the {@code person} deadline.
+     * @throws PersonNotFoundException if the person is not found in addressbook
+     */
+    @Override
+    public ReadOnlyPerson resetDeadlineForPerson(ReadOnlyPerson target) throws PersonNotFoundException {
+        ReadOnlyPerson person = addressBook.resetPersonDeadline(target);
+        indicateAddressBookChanged();
+        return person;
+    }
+
+```
+###### \java\seedu\address\model\ModelManager.java
+``` java
     /**
      * Returns an unmodifiable view of the overdue list of {@code ReadOnlyPerson} backed by the internal list of
      * {@code addressBook}
@@ -223,15 +288,10 @@ public class OverdueListCommand extends Command {
     public void handleLoginUpdateDebt(LoginAppRequestEvent event) {
         // login is successful
         if (event.getLoginStatus() == true) {
-            for (ReadOnlyPerson person : allPersons) {
-                if (!person.getInterest().value.equals("No interest set.")
-                        && (person.checkLastAccruedDate(new Date()) != 0)) {
-                    updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
-                }
-            }
+            checkAndUpdateInterest();
         }
     }
-}
+
 ```
 ###### \java\seedu\address\model\person\DateBorrow.java
 ``` java
@@ -291,7 +351,7 @@ public class Deadline {
     public static final String DASH_CHARACTER = "-";
     public static final String NO_DEADLINE_SET = "No deadline set.";
     public static final String MESSAGE_DEADLINE_CONSTRAINTS =
-            "Deadline can only contain input of the format XX-XX-XXXX, taking X as an integer.";
+            "Deadline can only contain input of the format XX-XX-XXXX, taking X as an integer";
 
     public final String value; // format of DD-MM-YYYY.
     public final String valueToDisplay; // format of DAY, DD MM, 'Year' YYYY.
@@ -339,6 +399,17 @@ public class Deadline {
     @Override
     public String toString() {
         return valueToDisplay;
+    }
+
+    /**
+     * Get deadline as a {@code LocalDate} object
+     */
+    public LocalDate getDeadlineAsLocalDate() {
+        String day = getDay();
+        String month = getMonth();
+        String year = getYear();
+        String deadlineFormatted = year + month + day;
+        return LocalDate.parse(deadlineFormatted, DateTimeFormatter.BASIC_ISO_DATE);
     }
 
     public String getDay() {
@@ -660,9 +731,8 @@ public class Interest {
     public int checkLastAccruedDate(Date currentDate) {
         if (lastAccruedDate.before(currentDate)) {
             return DateUtil.getNumberOfMonthBetweenDates(currentDate, lastAccruedDate);
-        } else {
-            return 0;
         }
+        return 0;
     }
 
 ```
