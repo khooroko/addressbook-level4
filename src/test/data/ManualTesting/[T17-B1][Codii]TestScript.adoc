@@ -1,4 +1,5 @@
 = Script for Manual Testing
+:experimental:
 
 == Introduction
 This document will explain the step-by-step procedure to perform manual testing. +
