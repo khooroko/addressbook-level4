@@ -468,6 +468,9 @@ public class ModelManager extends ComponentManager implements Model {
         }
     }
 
+    /**
+     * Checks through the address book for any person whose debt should be accrued.
+     */
     public void checkAndUpdateInterest() {
         for (ReadOnlyPerson person : allPersons) {
             if (!person.getInterest().value.equals("No interest set.")
