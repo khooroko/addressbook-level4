@@ -468,6 +468,7 @@ public class ModelManager extends ComponentManager implements Model {
         }
     }
 
+    //@@author lawwman
     /**
      * Checks through the address book for any person whose debt should be accrued.
      */
@@ -483,6 +484,7 @@ public class ModelManager extends ComponentManager implements Model {
 
     //=========== Filtered Person List Accessors =============================================================
 
+    //@@author
     /**
      * Returns an unmodifiable view of the list of {@code ReadOnlyPerson} backed by the internal list of
      * {@code addressBook}

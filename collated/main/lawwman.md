@@ -23,6 +23,19 @@ public class OverdueListCommand extends Command {
 
 }
 ```
+###### \java\seedu\address\logic\LogicManager.java
+``` java
+    @Override
+    public ObservableList<ReadOnlyPerson> getFilteredOverduePersonList() {
+        return model.getFilteredOverduePersonList();
+    }
+
+    @Override
+    public ListElementPointer getHistorySnapshot() {
+        return new ListElementPointer(history.getHistory());
+    }
+}
+```
 ###### \java\seedu\address\logic\parser\ParserUtil.java
 ``` java
     /**
@@ -250,6 +263,24 @@ public class OverdueListCommand extends Command {
         indicateAddressBookChanged();
         return person;
     }
+
+```
+###### \java\seedu\address\model\ModelManager.java
+``` java
+    /**
+     * Checks through the address book for any person whose debt should be accrued.
+     */
+    public void checkAndUpdateInterest() {
+        for (ReadOnlyPerson person : allPersons) {
+            if (!person.getInterest().value.equals("No interest set.")
+                    && (person.checkLastAccruedDate(new Date()) != 0)) {
+                updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
+            }
+        }
+    }
+
+
+    //=========== Filtered Person List Accessors =============================================================
 
 ```
 ###### \java\seedu\address\model\ModelManager.java
