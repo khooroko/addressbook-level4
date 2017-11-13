@@ -181,6 +181,9 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Should display full masterlist in person list panel.
 
 ==== Selecting contacts from "all contacts in this area" list panel
+[NOTE]
+This panel, also called the "nearby panel", is at the bottom of the info panel. To see it, you will need to scroll down.
+
 . `select 1`
 ** Alex should be selected.
 . `nearby 2`
