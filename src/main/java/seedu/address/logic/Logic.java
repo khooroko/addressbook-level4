@@ -19,6 +19,11 @@ public interface Logic {
      */
     CommandResult execute(String commandText) throws CommandException, ParseException;
 
+    /**
+     * Clears command input history.
+     */
+    void clearCommandHistory();
+
     /** Returns an unmodifiable view of all persons */
     ObservableList<ReadOnlyPerson> getAllPersons();
 

@@ -24,8 +24,10 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.ProfilePicturesFolder;
 import seedu.address.commons.events.model.AddressBookChangedEvent;
 import seedu.address.commons.events.ui.ChangeInternalListEvent;
+import seedu.address.commons.events.ui.ChangeToCommandBoxView;
 import seedu.address.commons.events.ui.DeselectionEvent;
 import seedu.address.commons.events.ui.LoginAppRequestEvent;
+import seedu.address.commons.events.ui.LogoutAppRequestEvent;
 import seedu.address.commons.events.ui.MissingDisplayPictureEvent;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.exceptions.UserNotFoundException;
@@ -339,6 +341,9 @@ public class ModelManager extends ComponentManager implements Model {
     public void logout() {
         deselectPerson();
         raise(new LoginAppRequestEvent(false));
+        raise(new LogoutAppRequestEvent(true));
+        // this is necessary so that the correct LoginCommand parser is used
+        raise(new ChangeToCommandBoxView());
     }
 
     public String getUsernameFromUserPref() {

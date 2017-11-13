@@ -73,7 +73,13 @@ public class LogicManager extends ComponentManager implements Logic {
         return model.getAllPersons();
     }
 
-    //@@author
+    //@@author jelneo
+
+    @Override
+    public void clearCommandHistory() {
+        history.clear();
+    }
+
     @Override
     public ObservableList<ReadOnlyPerson> getFilteredPersonList() {
         return model.getFilteredPersonList();
