@@ -38,7 +38,7 @@ Only `help`, `exit` and `login` commands can be entered before login. If other c
 
 It also makes sense for the user to be able to log out without closing the app.
 
-The decision to include the CLI version of the login feature is based on convenience. One-shot commands take a shorter amount of time to type compared to multi-step commands. Although password masking caused the CLI login feature to behave unexpectedly at times, it is necessary to prevent others from seeing the password that is typed. The CLI login works as expected if the user does not insert/delete characters from within the input.
+The decision to include the CLI version of the login feature is based on convenience. One-shot commands take a shorter amount of time to type compared to multi-step commands. Although password masking causes the CLI login feature to behave unexpectedly at times, it is necessary to prevent others from seeing the password that is typed. The CLI login works as expected if the user does not insert/delete characters from within the input.
 
 ==== Implementation
 
