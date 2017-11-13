@@ -20,7 +20,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
  */
 public class LoginCommandParser implements Parser<LoginCommand> {
 
-    public static final String ONE_OR_MORE_SPACES_REGEX = "\\s+";
+    public static final String WHITESPACE_CHARACTER = " ";
     public static final String EMPTY_USERNAME_MESSAGE = "Username cannot be empty";
     public static final String EMPTY_PASSWORD_MESSAGE = "Password cannot be empty";
 
@@ -38,7 +38,7 @@ public class LoginCommandParser implements Parser<LoginCommand> {
         }
 
         try {
-            String[] argsList = trimmedArgs.split(ONE_OR_MORE_SPACES_REGEX);
+            String[] argsList = trimmedArgs.split(WHITESPACE_CHARACTER);
             // if incorrect number of arguments are supplied, throw ArrayOutOfBoundsException
             if (argsList.length != 2) {
                 throw new ArrayIndexOutOfBoundsException();

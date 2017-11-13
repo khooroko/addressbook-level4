@@ -1,14 +1,12 @@
 package seedu.address.logic.commands;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static seedu.address.logic.commands.LogoutCommand.MESSAGE_LOGOUT_ACKNOWLEDGEMENT;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import org.junit.Rule;
 import org.junit.Test;
 
-import seedu.address.commons.events.ui.LogoutAppRequestEvent;
 import seedu.address.logic.CommandHistory;
 import seedu.address.logic.CommandTest;
 import seedu.address.logic.UndoRedoStack;
@@ -33,6 +31,5 @@ public class LogoutCommandTest extends CommandTest {
         logoutCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         CommandResult result = logoutCommand.execute();
         assertEquals(MESSAGE_LOGOUT_ACKNOWLEDGEMENT, result.feedbackToUser);
-        assertTrue(eventsCollectorRule.eventsCollector.getMostRecent() instanceof LogoutAppRequestEvent);
     }
 }

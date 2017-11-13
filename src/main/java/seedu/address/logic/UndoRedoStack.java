@@ -29,6 +29,14 @@ public class UndoRedoStack {
     }
 
     /**
+     * Clears redo-stack and undo-stack.
+     */
+    public void clearUndoRedoStacks() {
+        undoStack.clear();
+        redoStack.clear();
+    }
+
+    /**
      * Pops and returns the next {@code UndoableCommand} to be undone in the stack.
      */
     public UndoableCommand popUndo() {
