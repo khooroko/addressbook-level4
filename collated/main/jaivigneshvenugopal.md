@@ -1,381 +1,5 @@
 # jaivigneshvenugopal
-###### \java\seedu\address\commons\core\ProfilePicturesFolder.java
-``` java
-/**
- * Contains path to user's folder that contains profile pictures of all clients.
- */
-public class ProfilePicturesFolder {
-
-    private static String profilePicsFolderPath = "src/main/resources/images/profilePics/";
-
-    public static void setPath(String path) {
-        profilePicsFolderPath = path;
-    }
-
-    public static String getPath() {
-        return profilePicsFolderPath;
-    }
-}
-```
-###### \java\seedu\address\logic\commands\AddPictureCommand.java
-``` java
-/**
- * Adds a display picture to a person.
- */
-public class AddPictureCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "addpic";
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Updates the profile picture of the currently selected person or the person"
-            + "identified by the index number used in the last "
-            + "person listing.\n"
-            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-    public static final String MESSAGE_ADDPIC_SUCCESS = "%1$s profile picture has been updated!";
-    public static final String MESSAGE_ADDPIC_FAILURE = "Unable to update %1$s profile picture!";
-
-    private final Index targetIndex;
-
-    public AddPictureCommand() {
-        this.targetIndex = null;
-    }
-
-    public AddPictureCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-        String messageToDisplay = MESSAGE_ADDPIC_SUCCESS;
-
-        ReadOnlyPerson personToUpdate = selectPerson(targetIndex);
-
-        if (!model.addProfilePicture(personToUpdate)) {
-            messageToDisplay = MESSAGE_ADDPIC_FAILURE;
-        }
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-
-        String currentList = listObserver.getCurrentListName();
-
-        return new CommandResult(currentList + String.format(messageToDisplay, personToUpdate.getName()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof AddPictureCommand // instanceof handles nulls
-                && ((this.targetIndex == null
-                && ((AddPictureCommand) other).targetIndex == null) // both targetIndex null
-                || this.targetIndex.equals(((AddPictureCommand) other).targetIndex))); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\BanCommand.java
-``` java
-/**
- * Adds a person identified using it's last displayed index into the blacklist.
- */
-public class BanCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "ban";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Bans the currently selected person or the person identified by the index number used in the last"
-            + " person listing.\n"
-            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-    public static final String MESSAGE_BAN_PERSON_SUCCESS = "%1$s has been added to BLACKLIST";
-    public static final String MESSAGE_BAN_PERSON_FAILURE = "%1$s is already in BLACKLIST!";
-
-    private final Index targetIndex;
-
-    public BanCommand() {
-        this.targetIndex = null;
-    }
-
-    public BanCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-        String messageToDisplay = MESSAGE_BAN_PERSON_SUCCESS;
-
-        ReadOnlyPerson personToBan = selectPerson(targetIndex);
-
-        if (personToBan.isBlacklisted()) {
-            messageToDisplay = MESSAGE_BAN_PERSON_FAILURE;
-        } else {
-            model.addBlacklistedPerson(personToBan);
-        }
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-
-        String currentList = listObserver.getCurrentListName();
-
-        return new CommandResult(currentList + String.format(messageToDisplay, personToBan.getName()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof BanCommand // instanceof handles nulls
-                && ((this.targetIndex == null && ((BanCommand) other).targetIndex == null) // both targetIndex null
-                || this.targetIndex.equals(((BanCommand) other).targetIndex))); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\BlacklistCommand.java
-``` java
-/**
- * Lists all blacklisted persons in the address book to the user.
- */
-public class BlacklistCommand extends Command {
-
-    public static final String COMMAND_WORD = "blacklist";
-    public static final String COMMAND_WORD_ALIAS = "bl";
-
-    public static final String MESSAGE_SUCCESS = "Listed all debtors "
-            + "who are prohibited from borrowing money";
-
-
-    @Override
-    public CommandResult execute() {
-        requireNonNull(model);
-        model.deselectPerson();
-        model.changeListTo(COMMAND_WORD);
-        model.updateFilteredBlacklistedPersonList(PREDICATE_SHOW_ALL_BLACKLISTED_PERSONS);
-        String currentList = listObserver.getCurrentListName();
-        return new CommandResult(currentList + MESSAGE_SUCCESS);
-    }
-}
-```
-###### \java\seedu\address\logic\commands\DeletePictureCommand.java
-``` java
-/**
- * Removes the display picture of a person.
- */
-public class DeletePictureCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "delpic";
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Removes the profile picture of the currently selected person or the person"
-            + "identified by the index number used in the last "
-            + "person listing.\n"
-            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-    public static final String MESSAGE_DELPIC_SUCCESS = "%1$s profile picture has been removed!";
-    public static final String MESSAGE_DELPIC_FAILURE = "Unable to remove %1$s profile picture!";
-
-    private final Index targetIndex;
-
-    public DeletePictureCommand() {
-        this.targetIndex = null;
-    }
-
-    public DeletePictureCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-        String messageToDisplay = MESSAGE_DELPIC_SUCCESS;
-
-        ReadOnlyPerson personToUpdate = selectPerson(targetIndex);
-
-        model.removeProfilePicture(personToUpdate);
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-
-        String currentList = listObserver.getCurrentListName();
-
-        return new CommandResult(currentList + String.format(messageToDisplay, personToUpdate.getName()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof DeletePictureCommand // instanceof handles nulls
-                && ((this.targetIndex == null
-                && ((DeletePictureCommand) other).targetIndex == null) // both targetIndex null
-                || this.targetIndex.equals(((DeletePictureCommand) other).targetIndex))); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\RepaidCommand.java
-``` java
-/**
- * Adds a person identified using it's last displayed index into the whitelist.
- * Resets person's debt to zero and sets the date repaid field.
- */
-public class RepaidCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "repaid";
-    public static final String COMMAND_WORD_ALIAS = "rp";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Adds the currently selected person or the person identified by the index number into the whitelist"
-            + " and concurrently clear his/her debt.\n"
-            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-    public static final String MESSAGE_REPAID_PERSON_SUCCESS = "%1$s has now repaid his/her debt";
-    public static final String MESSAGE_REPAID_PERSON_FAILURE = "%1$s has already repaid debt!";
-
-    private final Index targetIndex;
-
-    public RepaidCommand() {
-        this.targetIndex = null;
-    }
-
-    public RepaidCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-
-        String messageToDisplay = MESSAGE_REPAID_PERSON_SUCCESS;
-
-        ReadOnlyPerson personToWhitelist = selectPerson(targetIndex);
-
-        if (personToWhitelist.getDebt().toNumber() == 0) {
-            messageToDisplay = MESSAGE_REPAID_PERSON_FAILURE;
-        } else {
-            model.addWhitelistedPerson(personToWhitelist);
-        }
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-
-        String currentList = listObserver.getCurrentListName();
-
-        return new CommandResult(currentList + String.format(messageToDisplay, personToWhitelist.getName()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof RepaidCommand // instanceof handles nulls
-                && ((this.targetIndex == null && ((RepaidCommand) other).targetIndex == null) // both targetIndex null
-                || this.targetIndex.equals(((RepaidCommand) other).targetIndex))); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\SetPathCommand.java
-``` java
-/**
- * Sets the absolute path to the profile pictures folder that is residing in user's workspace.
- */
-public class SetPathCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "setpath";
-    public static final String MESSAGE_SUCCESS = "Location to access profile pictures is now set!";
-    public static final String MESSAGE_USAGE = COMMAND_WORD + "C:/Users/acer/Desktop/SE/profilepic/";
-
-    private String path;
-
-    public SetPathCommand(String path) {
-        this.path = path;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-        ProfilePicturesFolder.setPath(reformatPath(path));
-        return new CommandResult(MESSAGE_SUCCESS);
-    }
-
-    private String reformatPath(String path) {
-        path = path.replaceAll("\\\\", "/");
-        return path;
-    }
-}
-```
-###### \java\seedu\address\logic\commands\UnbanCommand.java
-``` java
-/**
- * Removes a person identified using it's last displayed index from the blacklist.
- */
-public class UnbanCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "unban";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Unbans the currently selected person or the person identified by the index number used in the last "
-            + "person listing from blacklist.\n"
-            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-    public static final String MESSAGE_UNBAN_PERSON_SUCCESS = "Removed %1$s from BLACKLIST";
-    public static final String MESSAGE_UNBAN_PERSON_FAILURE = "%1$s is not BLACKLISTED!";
-
-    private final Index targetIndex;
-
-    public UnbanCommand() {
-        this.targetIndex = null;
-    }
-
-    public UnbanCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-
-        String messageToDisplay = MESSAGE_UNBAN_PERSON_SUCCESS;
-
-        ReadOnlyPerson personToUnban = selectPerson(targetIndex);
-
-        try {
-            if (personToUnban.isBlacklisted()) {
-                model.removeBlacklistedPerson(personToUnban);
-            } else {
-                messageToDisplay = MESSAGE_UNBAN_PERSON_FAILURE;
-            }
-        } catch (PersonNotFoundException e) {
-            assert false : "The target person is not in blacklist";
-        }
-
-        listObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-
-        String currentList = listObserver.getCurrentListName();
-
-        return new CommandResult(currentList + String.format(messageToDisplay, personToUnban.getName()));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof UnbanCommand // instanceof handles nulls
-                && ((this.targetIndex == null && ((UnbanCommand) other).targetIndex == null) // both targetIndex null
-                || this.targetIndex.equals(((UnbanCommand) other).targetIndex))); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\WhitelistCommand.java
-``` java
-/**
- * Lists all persons who have cleared their debts.
- */
-public class WhitelistCommand extends Command {
-
-    public static final String COMMAND_WORD = "whitelist";
-    public static final String COMMAND_WORD_ALIAS = "wl";
-
-    public static final String MESSAGE_SUCCESS = "Listed all debtors "
-            + "who have cleared their debts";
-
-
-    @Override
-    public CommandResult execute() {
-        requireNonNull(model);
-        model.deselectPerson();
-        model.changeListTo(COMMAND_WORD);
-        model.updateFilteredWhitelistedPersonList(PREDICATE_SHOW_ALL_WHITELISTED_PERSONS);
-        String currentList = listObserver.getCurrentListName();
-        return new CommandResult(currentList + MESSAGE_SUCCESS);
-    }
-}
-```
-###### \java\seedu\address\logic\ListObserver.java
+###### \java\seedu\address\commons\core\ListObserver.java
 ``` java
 /**
  * Monitors current displayed list on person list panel.
@@ -388,17 +12,17 @@ public class ListObserver {
     public static final String WHITELIST_NAME_DISPLAY_FORMAT = "WHITELIST:\n";
     public static final String OVERDUELIST_NAME_DISPLAY_FORMAT = "OVERDUELIST:\n";
 
-    private Model model;
+    private static Model model;
 
-    public ListObserver(Model model) {
-        this.model = model;
+    public static void init(Model newModel) {
+        model = newModel;
     }
 
     /**
      * Monitors current displayed list on person list panel.
      * @return updated version of the current displayed list.
      */
-    public ObservableList<ReadOnlyPerson> getCurrentFilteredList() {
+    public static ObservableList<ReadOnlyPerson> getCurrentFilteredList() {
         String currentList = model.getCurrentListName();
 
         switch (currentList) {
@@ -419,10 +43,10 @@ public class ListObserver {
 
     /**
      * Monitors current displayed list on person list panel.
-     * Updates the current displayed list with {@param predicate}
+     * @param predicate is used to update the current displayed list.
      * @return updated version of the current displayed list.
      */
-    public int updateCurrentFilteredList(Predicate<ReadOnlyPerson> predicate) {
+    public static int updateCurrentFilteredList(Predicate<ReadOnlyPerson> predicate) {
         String currentList = model.getCurrentListName();
 
         switch (currentList) {
@@ -448,7 +72,7 @@ public class ListObserver {
      * Monitors current displayed list on person list panel.
      * @return name of current displayed list.
      */
-    public String getCurrentListName() {
+    public static String getCurrentListName() {
         String currentList = model.getCurrentListName();
 
         switch (currentList) {
@@ -471,7 +95,11 @@ public class ListObserver {
      * Monitors current displayed list on person list panel.
      * @return {@code Index} of current selected person.
      */
-    public Index getIndexofSelectedPersonInCurrentList() {
+    public static Index getIndexOfSelectedPersonInCurrentList() {
+        if (model.getSelectedPerson() == null) {
+            return null;
+        }
+
         Index index;
         switch (model.getCurrentListName()) {
 
@@ -492,9 +120,9 @@ public class ListObserver {
     }
 
     /**
-     * @return {@code Index} of person in current displayed list.
+     * Returns the {@code Index} of person in current displayed list.
      */
-    public Index getIndexofPersonInCurrentList(ReadOnlyPerson person) {
+    public static Index getIndexOfPersonInCurrentList(ReadOnlyPerson person) {
         Index index;
 
         switch (model.getCurrentListName()) {
@@ -535,6 +163,478 @@ public class ListObserver {
 
         return index;
     }
+
+    /**
+     * Returns the currently selected person.
+     */
+    public static ReadOnlyPerson getSelectedPerson() {
+        return model.getSelectedPerson();
+    }
+}
+```
+###### \java\seedu\address\commons\core\ProfilePicturesFolder.java
+``` java
+/**
+ * Contains path to user's folder that contains profile pictures of all clients.
+ */
+public class ProfilePicturesFolder {
+
+    private static String profilePicsFolderPath = "/images/profilePics/";
+
+    public static void setPath(String path) {
+        profilePicsFolderPath = path;
+    }
+
+    public static String getPath() {
+        return profilePicsFolderPath;
+    }
+}
+```
+###### \java\seedu\address\commons\events\ui\ChangeInternalListEvent.java
+``` java
+/**
+ * Represents a change of internal list in the Person List Panel
+ */
+public class ChangeInternalListEvent extends BaseEvent {
+
+    private final String listName;
+
+    public ChangeInternalListEvent(String listName) {
+        this.listName = listName;
+    }
+
+    public String getListName() {
+        return listName;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+}
+```
+###### \java\seedu\address\commons\events\ui\MissingDisplayPictureEvent.java
+``` java
+/**
+ * Represents an event where person has a missing display picture when he is supposed to have one.
+ */
+public class MissingDisplayPictureEvent extends BaseEvent {
+
+    private final ReadOnlyPerson person;
+
+    public MissingDisplayPictureEvent(ReadOnlyPerson person) {
+        this.person = person;
+    }
+
+    public ReadOnlyPerson getPerson() {
+        return person;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+}
+```
+###### \java\seedu\address\logic\commands\AddPictureCommand.java
+``` java
+/**
+ * Adds a display picture to a person.
+ */
+public class AddPictureCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "addpic";
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Updates the profile picture of the currently selected person or the person"
+            + "identified by the index number used in the last "
+            + "person listing.\n"
+            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+    public static final String MESSAGE_ADDPIC_SUCCESS = "%1$s profile picture has been updated!";
+    public static final String MESSAGE_ADDPIC_FAILURE = "Unable to update profile picture!";
+
+    private final ReadOnlyPerson personToUpdate;
+
+    public AddPictureCommand() throws CommandException {
+        personToUpdate = selectPersonForCommand();
+    }
+
+    public AddPictureCommand(Index targetIndex) throws CommandException {
+        personToUpdate = selectPersonForCommand(targetIndex);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        ReadOnlyPerson targetPerson;
+        try {
+            targetPerson = model.addProfilePicture(personToUpdate);
+        } catch (ProfilePictureNotFoundException ppnfe) {
+            throw new CommandException(String.format(MESSAGE_ADDPIC_FAILURE, personToUpdate.getName()));
+        }
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
+        reselectPerson(targetPerson);
+
+        String currentList = ListObserver.getCurrentListName();
+
+        return new CommandResult(currentList + String.format(MESSAGE_ADDPIC_SUCCESS, personToUpdate.getName()));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof AddPictureCommand // instanceof handles nulls
+                && this.personToUpdate.equals(((AddPictureCommand) other).personToUpdate)); // state check
+    }
+}
+```
+###### \java\seedu\address\logic\commands\BanCommand.java
+``` java
+/**
+ * Adds a person identified using it's last displayed index into the blacklist.
+ */
+public class BanCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "ban";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Bans the currently selected person or the person identified by the index number used in the last"
+            + " person listing.\n"
+            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+    public static final String MESSAGE_BAN_PERSON_SUCCESS = "%1$s has been added to BLACKLIST";
+    public static final String MESSAGE_BAN_BLACKLISTED_PERSON_FAILURE = "%1$s is already in BLACKLIST!";
+
+    private final ReadOnlyPerson personToBan;
+
+    public BanCommand() throws CommandException {
+        personToBan = selectPersonForCommand();
+    }
+
+    public BanCommand(Index targetIndex) throws CommandException {
+        personToBan = selectPersonForCommand(targetIndex);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        if (personToBan.isBlacklisted()) {
+            throw new CommandException(String.format(MESSAGE_BAN_BLACKLISTED_PERSON_FAILURE, personToBan.getName()));
+        }
+
+        ReadOnlyPerson targetPerson = model.addBlacklistedPerson(personToBan);
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
+        reselectPerson(targetPerson);
+
+        String currentList = ListObserver.getCurrentListName();
+
+        return new CommandResult(currentList + String.format(MESSAGE_BAN_PERSON_SUCCESS, personToBan.getName()));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof BanCommand // instanceof handles nulls
+                && this.personToBan.equals(((BanCommand) other).personToBan)); // state check
+    }
+}
+```
+###### \java\seedu\address\logic\commands\BlacklistCommand.java
+``` java
+/**
+ * Lists all blacklisted persons in the address book to the user.
+ */
+public class BlacklistCommand extends Command {
+
+    public static final String COMMAND_WORD = "blacklist";
+    public static final String COMMAND_WORD_ALIAS = "bl";
+
+    public static final String MESSAGE_SUCCESS = "Listed all debtors "
+            + "who are prohibited from borrowing money";
+
+
+    @Override
+    public CommandResult execute() {
+        requireNonNull(model);
+        model.deselectPerson();
+        model.changeListTo(COMMAND_WORD);
+        model.updateFilteredBlacklistedPersonList(PREDICATE_SHOW_ALL_BLACKLISTED_PERSONS);
+        String currentList = ListObserver.getCurrentListName();
+        return new CommandResult(currentList + MESSAGE_SUCCESS);
+    }
+}
+```
+###### \java\seedu\address\logic\commands\DeletePictureCommand.java
+``` java
+/**
+ * Removes the display picture of a person.
+ */
+public class DeletePictureCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "delpic";
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Removes the profile picture of the currently selected person or the person"
+            + "identified by the index number used in the last "
+            + "person listing.\n"
+            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+    public static final String MESSAGE_DELETE_PICTURE_SUCCESS = "%1$s profile picture has been removed!";
+    public static final String MESSAGE_DELETE_PICTURE_FAILURE = "%1$s does not have a profile picture!";
+
+    private final ReadOnlyPerson personToUpdate;
+
+    public DeletePictureCommand() throws CommandException {
+        personToUpdate = selectPersonForCommand();
+    }
+
+    public DeletePictureCommand(Index targetIndex) throws CommandException {
+        personToUpdate = selectPersonForCommand(targetIndex);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        ReadOnlyPerson targetPerson;
+        try {
+            targetPerson = model.removeProfilePicture(personToUpdate);
+        } catch (ProfilePictureNotFoundException e) {
+            throw new CommandException(String.format(MESSAGE_DELETE_PICTURE_FAILURE, personToUpdate.getName()));
+        }
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
+        reselectPerson(targetPerson);
+
+        String currentList = ListObserver.getCurrentListName();
+
+        return new CommandResult(currentList + String.format(MESSAGE_DELETE_PICTURE_SUCCESS, personToUpdate.getName()));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof DeletePictureCommand // instanceof handles nulls
+                && this.personToUpdate.equals(((DeletePictureCommand) other).personToUpdate));
+    }
+
+}
+```
+###### \java\seedu\address\logic\commands\EditCommand.java
+``` java
+    /**
+     * Does the appropriate list status checks on {@code personToEdit}
+     * and changes the list status of {@code editedPerson} accordingly
+     * @return editedPerson
+     */
+    private Person listSyncChecks(ReadOnlyPerson personToEdit, Person editedPerson) {
+        if (personToEdit.isWhitelisted() && editedPerson.getDebt().toNumber() > 0) {
+            editedPerson.setIsWhitelisted(false);
+            editedPerson.setDateRepaid(new DateRepaid());
+        } else if (!personToEdit.isWhitelisted() && !personToEdit.isBlacklisted()
+                && editedPerson.getDebt().toNumber() == 0) {
+            editedPerson.setIsWhitelisted(true);
+            editedPerson.setDateRepaid(new DateRepaid(formatDate(new Date())));
+        }
+        if (editedPerson.getDebt().toNumber() == 0) {
+            try {
+                editedPerson.setDeadline(new Deadline(Deadline.NO_DEADLINE_SET));
+                editedPerson.setHasOverdueDebt(false);
+            } catch (IllegalValueException ive) {
+                assert false : "Cannot happen as input for new deadline was controlled.";
+            }
+        }
+        if (!editedPerson.getDeadline().value.equals(Deadline.NO_DEADLINE_SET)) {
+            Date editedPersonDeadline = DateUtil.convertStringToDate(editedPerson.getDeadline().valueToDisplay);
+            Date currentDate = new Date();
+            if (personToEdit.hasOverdueDebt() && currentDate.before(editedPersonDeadline)) {
+                editedPerson.setHasOverdueDebt(false);
+            }
+            if (!personToEdit.hasOverdueDebt() && editedPersonDeadline.before(currentDate)) {
+                editedPerson.setHasOverdueDebt(true);
+            }
+        }
+        return editedPerson;
+    }
+
+```
+###### \java\seedu\address\logic\commands\RepaidCommand.java
+``` java
+/**
+ * Adds a person identified using it's last displayed index into the whitelist.
+ * Resets person's debt to zero and sets the date repaid field.
+ */
+public class RepaidCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "repaid";
+    public static final String COMMAND_WORD_ALIAS = "rp";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Adds the currently selected person or the person identified by the index number into the whitelist"
+            + " and concurrently clear his/her debt.\n"
+            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+    public static final String MESSAGE_REPAID_PERSON_SUCCESS = "%1$s has now repaid his/her debt";
+    public static final String MESSAGE_REPAID_PERSON_FAILURE = "%1$s has already repaid debt!";
+
+    private final ReadOnlyPerson repaidDebtor;
+
+    public RepaidCommand() throws CommandException {
+        repaidDebtor = selectPersonForCommand();
+    }
+
+    public RepaidCommand(Index targetIndex) throws CommandException {
+        repaidDebtor = selectPersonForCommand(targetIndex);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        if (repaidDebtor.getDebt().toNumber() == 0) {
+            throw new CommandException(String.format(MESSAGE_REPAID_PERSON_FAILURE, repaidDebtor.getName()));
+        }
+
+        ReadOnlyPerson targetPerson = model.addWhitelistedPerson(repaidDebtor);
+        try {
+            targetPerson = model.removeOverdueDebtPerson(targetPerson);
+            targetPerson = model.resetDeadlineForPerson(targetPerson);
+        } catch (PersonNotFoundException pnfe) {
+            assert false : "The target person cannot be missing";
+        }
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
+        reselectPerson(targetPerson);
+
+        String currentList = ListObserver.getCurrentListName();
+
+        return new CommandResult(currentList + String.format(MESSAGE_REPAID_PERSON_SUCCESS, targetPerson.getName()));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof RepaidCommand // instanceof handles nulls
+                && this.repaidDebtor.equals(((RepaidCommand) other).repaidDebtor)); // state check
+    }
+}
+```
+###### \java\seedu\address\logic\commands\SetPathCommand.java
+``` java
+/**
+ * Sets the absolute path to the profile pictures folder that is residing in user's workspace.
+ */
+public class SetPathCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "setpath";
+    public static final String MESSAGE_SUCCESS = "Location to access profile pictures is now set!";
+    public static final String MESSAGE_FAILURE = "Path is invalid!";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + "C:/Users/acer/Desktop/SE/profilepic/";
+
+    private String path;
+
+    public SetPathCommand(String path) {
+        this.path = path;
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        File pathChecker = new File(path);
+        if (pathChecker.exists()) {
+            ProfilePicturesFolder.setPath(reformatPath(path));
+            model.setProfilePicsPath(reformatPath(path));
+        } else {
+            throw new CommandException(MESSAGE_FAILURE);
+        }
+        return new CommandResult(MESSAGE_SUCCESS);
+    }
+
+    /**
+     * Reformats the path to suit the application
+     * @return modified path to suit the application
+     */
+    private String reformatPath(String path) {
+        path = path.replaceAll("\\\\", "/");
+        String lastChar = path.substring(path.length() - 1);
+        if (!lastChar.equals("/")) {
+            path = path.concat("/");
+        }
+        return path;
+    }
+}
+```
+###### \java\seedu\address\logic\commands\UnbanCommand.java
+``` java
+/**
+ * Removes a person identified using it's last displayed index from the blacklist.
+ */
+public class UnbanCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "unban";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Unbans the currently selected person or the person identified by the index number used in the last "
+            + "person listing from blacklist.\n"
+            + "Parameters: INDEX (optional, must be a positive integer if present)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+    public static final String MESSAGE_UNBAN_PERSON_SUCCESS = "Removed %1$s from BLACKLIST";
+    public static final String MESSAGE_UNBAN_PERSON_FAILURE = "%1$s is not BLACKLISTED!";
+
+    private final ReadOnlyPerson personToUnban;
+
+    public UnbanCommand() throws CommandException {
+        personToUnban = selectPersonForCommand();
+    }
+
+    public UnbanCommand(Index targetIndex) throws CommandException {
+        personToUnban = selectPersonForCommand(targetIndex);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        ReadOnlyPerson targetPerson = personToUnban;
+
+        try {
+            if (personToUnban.isBlacklisted()) {
+                targetPerson = model.removeBlacklistedPerson(personToUnban);
+            } else {
+                throw new CommandException(String.format(MESSAGE_UNBAN_PERSON_FAILURE, personToUnban.getName()));
+            }
+        } catch (PersonNotFoundException e) {
+            assert false : "The target person is not in blacklist";
+        }
+
+        ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
+
+        String currentList = ListObserver.getCurrentListName();
+
+        return new CommandResult(currentList + String.format(MESSAGE_UNBAN_PERSON_SUCCESS, targetPerson.getName()));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof UnbanCommand // instanceof handles nulls
+                && this.personToUnban.equals(((UnbanCommand) other).personToUnban)); // state check
+    }
+}
+```
+###### \java\seedu\address\logic\commands\WhitelistCommand.java
+``` java
+/**
+ * Lists all persons who have cleared their debts.
+ */
+public class WhitelistCommand extends Command {
+
+    public static final String COMMAND_WORD = "whitelist";
+    public static final String COMMAND_WORD_ALIAS = "wl";
+
+    public static final String MESSAGE_SUCCESS = "Listed all debtors "
+            + "who have cleared their debts";
+
+    @Override
+    public CommandResult execute() {
+        requireNonNull(model);
+        model.deselectPerson();
+        model.changeListTo(COMMAND_WORD);
+        model.updateFilteredWhitelistedPersonList(PREDICATE_SHOW_ALL_WHITELISTED_PERSONS);
+        String currentList = ListObserver.getCurrentListName();
+        return new CommandResult(currentList + MESSAGE_SUCCESS);
+    }
 }
 ```
 ###### \java\seedu\address\logic\Logic.java
@@ -560,7 +660,7 @@ public class ListObserver {
 ###### \java\seedu\address\logic\parser\AddPictureCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new AddPictureCommand object
+ * Parses input arguments and creates a new {@code AddPictureCommand} object
  */
 public class AddPictureCommandParser implements Parser<AddPictureCommand> {
 
@@ -569,7 +669,7 @@ public class AddPictureCommandParser implements Parser<AddPictureCommand> {
      * and returns an AddPictureCommand object for execution.
      * @throws ParseException if the user input does not conform the expected format
      */
-    public AddPictureCommand parse(String args) throws ParseException {
+    public AddPictureCommand parse(String args) throws ParseException, CommandException {
         try {
             if (args.trim().equals("")) {
                 return new AddPictureCommand();
@@ -587,7 +687,7 @@ public class AddPictureCommandParser implements Parser<AddPictureCommand> {
 ###### \java\seedu\address\logic\parser\BanCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new BanCommand object
+ * Parses input arguments and creates a new {@code BanCommand} object
  */
 public class BanCommandParser implements Parser<BanCommand> {
 
@@ -596,7 +696,7 @@ public class BanCommandParser implements Parser<BanCommand> {
      * and returns an BanCommand object for execution.
      * @throws ParseException if the user input does not conform the expected format
      */
-    public BanCommand parse(String args) throws ParseException {
+    public BanCommand parse(String args) throws ParseException, CommandException {
         try {
             if (args.trim().equals("")) {
                 return new BanCommand();
@@ -614,7 +714,7 @@ public class BanCommandParser implements Parser<BanCommand> {
 ###### \java\seedu\address\logic\parser\DeletePictureCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new DeletePictureCommand object
+ * Parses input arguments and creates a new {@code DeletePictureCommand} object
  */
 public class DeletePictureCommandParser implements Parser<DeletePictureCommand> {
 
@@ -623,7 +723,7 @@ public class DeletePictureCommandParser implements Parser<DeletePictureCommand> 
      * and returns an DeletePictureCommand object for execution.
      * @throws ParseException if the user input does not conform the expected format
      */
-    public DeletePictureCommand parse(String args) throws ParseException {
+    public DeletePictureCommand parse(String args) throws ParseException, CommandException {
         try {
             if (args.trim().equals("")) {
                 return new DeletePictureCommand();
@@ -641,7 +741,7 @@ public class DeletePictureCommandParser implements Parser<DeletePictureCommand> 
 ###### \java\seedu\address\logic\parser\RepaidCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new RepaidCommand object
+ * Parses input arguments and creates a new {@code RepaidCommand} object
  */
 public class RepaidCommandParser implements Parser<RepaidCommand> {
     /**
@@ -649,7 +749,7 @@ public class RepaidCommandParser implements Parser<RepaidCommand> {
     * and returns an RepaidCommand object for execution.
     * @throws ParseException if the user input does not conform the expected format
     */
-    public RepaidCommand parse(String args) throws ParseException {
+    public RepaidCommand parse(String args) throws ParseException, CommandException {
         try {
             if (args.trim().equals("")) {
                 return new RepaidCommand();
@@ -667,7 +767,7 @@ public class RepaidCommandParser implements Parser<RepaidCommand> {
 ###### \java\seedu\address\logic\parser\SetPathCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new SetPathCommand object
+ * Parses input arguments and creates a new {@code SetPathCommand} object
  */
 public class SetPathCommandParser {
 
@@ -679,7 +779,7 @@ public class SetPathCommandParser {
 ###### \java\seedu\address\logic\parser\UnbanCommandParser.java
 ``` java
 /**
- * Parses input arguments and creates a new UnbanCommand object
+ * Parses input arguments and creates a new {@code UnbanCommand} object
  */
 public class UnbanCommandParser implements Parser<UnbanCommand> {
     /**
@@ -687,7 +787,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
      * and returns an UnbanCommand object for execution.
      * @throws ParseException if the user input does not conform the expected format
      */
-    public UnbanCommand parse(String args) throws ParseException {
+    public UnbanCommand parse(String args) throws ParseException, CommandException {
         try {
             if (args.trim().equals("")) {
                 return new UnbanCommand();
@@ -707,7 +807,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 ``` java
     /**
      * Adds a person to the blacklist in the address book.
-     * @return ReadOnly newBlacklistedPerson
+     * @return the newly blacklisted person
      */
     public ReadOnlyPerson addBlacklistedPerson(ReadOnlyPerson p) {
         int index;
@@ -728,7 +828,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /**
      * Adds a person to the whitelist in the address book.
-     * @return ReadOnly newWhitelistedPerson
+     * @return the newly whitelisted person
      */
     public ReadOnlyPerson addWhitelistedPerson(ReadOnlyPerson p) {
         int index;
@@ -745,12 +845,13 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         }
         return persons.getReadOnlyPerson(index);
     }
+
 ```
 ###### \java\seedu\address\model\AddressBook.java
 ``` java
     /**
      * Updates {@code key} to exclude {@code key} from the blacklist in this {@code AddressBook}.
-     * @return ReadOnly newUnBlacklistedPerson
+     * @return the newly blacklisted person.
      * @throws PersonNotFoundException if the {@code key} is not in this {@code AddressBook}.
      */
     public ReadOnlyPerson removeBlacklistedPerson(ReadOnlyPerson key) throws PersonNotFoundException {
@@ -778,7 +879,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /**
      * Updates {@code key} to exclude {@code key} from the whitelist in this {@code AddressBook}.
-     * @return ReadOnly newWhitelistedPerson
+     * @return the newly whitelisted person
      * @throws PersonNotFoundException if the {@code key} is not in this {@code AddressBook}.
      */
     public ReadOnlyPerson removeWhitelistedPerson(ReadOnlyPerson key) throws PersonNotFoundException {
@@ -796,6 +897,60 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         }
         return persons.getReadOnlyPerson(index);
     }
+
+```
+###### \java\seedu\address\model\AddressBook.java
+``` java
+    /**
+     * Resets person's debt field to zero, in the masterlist of the addressbook.
+     * @return ReadOnly existingPerson
+     * @throws PersonNotFoundException if person does not exist in list.
+     */
+    public ReadOnlyPerson resetPersonDebt(ReadOnlyPerson p) throws PersonNotFoundException {
+        int index;
+        index = persons.getIndexOf(p);
+
+        Person existingPerson = new Person(p);
+        try {
+            existingPerson.setDebt(new Debt(Debt.DEBT_ZER0_VALUE));
+        } catch (IllegalValueException e) {
+            assert false : "The target value cannot be of illegal value";
+        }
+
+        persons.remove(p);
+
+        try {
+            persons.add(index, existingPerson);
+        } catch (DuplicatePersonException dpe) {
+            assert false : "There should be no duplicate when resetting the debt of a person";
+        }
+
+        return persons.getReadOnlyPerson(index);
+    }
+
+    /**
+     * Resets person's {@code dateRepaid} field to current date, in the masterlist of the addressbook.
+     * @return ReadOnly existingPerson
+     * @throws PersonNotFoundException if person does not exist in list.
+     */
+    public ReadOnlyPerson setDateRepaid(ReadOnlyPerson p) throws PersonNotFoundException {
+        int index;
+        index = persons.getIndexOf(p);
+
+        Person existingPerson = new Person(p);
+        existingPerson.setDateRepaid(new DateRepaid(formatDate(new Date())));
+
+        persons.remove(p);
+
+        try {
+            persons.add(index, existingPerson);
+        } catch (DuplicatePersonException dpe) {
+            assert false : "There should be no duplicate when resetting the date repaid field of a person";
+        }
+
+        return persons.getReadOnlyPerson(index);
+    }
+
 ```
 ###### \java\seedu\address\model\AddressBook.java
 ``` java
@@ -861,6 +1016,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /** {@code Predicate} that always evaluate to true */
     Predicate<ReadOnlyPerson> PREDICATE_SHOW_ALL_WHITELISTED_PERSONS = unused -> true;
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -869,6 +1025,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /** Sets the name of current displayed list */
     void setCurrentListName(String currentList);
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -877,6 +1034,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /** Removes the given person from whitelist and returns the updated person */
     ReadOnlyPerson removeWhitelistedPerson(ReadOnlyPerson target) throws PersonNotFoundException;
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -885,6 +1043,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /** Adds the given person into whitelist and returns the added person */
     ReadOnlyPerson addWhitelistedPerson(ReadOnlyPerson person);
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -893,6 +1052,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
 
     /** Returns an unmodifiable view of the whitelisted filtered person list */
     ObservableList<ReadOnlyPerson> getFilteredWhitelistedPersonList();
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -909,6 +1069,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
      * @throws NullPointerException if {@code predicate} is null.
      */
     int updateFilteredWhitelistedPersonList(Predicate<ReadOnlyPerson> predicate);
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
@@ -916,19 +1077,27 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
      * Updates the list shown in Person List Panel to the requested list.
      */
     void changeListTo(String listName);
+
 ```
 ###### \java\seedu\address\model\Model.java
 ``` java
     /**
-     * Adds the picture of the person into app database and sets the person's display picture boolean status to true
-     * @return true if person's picture is successfully added
+     * Sets the path to the specified profile pictures folder in {@code userPrefs}
      */
-    boolean addProfilePicture(ReadOnlyPerson person);
+    void setProfilePicsPath(String path);
 
     /**
-     * Sets the person's display picture boolean status to false
+     * Adds the picture of the person into app database and sets the person's display picture boolean status to true
+     * @return updated {@code ReadOnlyPerson}.
      */
-    void removeProfilePicture(ReadOnlyPerson person);
+    ReadOnlyPerson addProfilePicture(ReadOnlyPerson person) throws ProfilePictureNotFoundException;
+
+    /**
+     * Sets the person's display picture boolean status to false.
+     * @return updated {@code ReadOnlyPerson}.
+     */
+    ReadOnlyPerson removeProfilePicture(ReadOnlyPerson person) throws ProfilePictureNotFoundException;
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
@@ -947,6 +1116,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
     public void setCurrentListName(String currentList) {
         this.currentList = currentList;
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
@@ -977,6 +1147,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         indicateAddressBookChanged();
         return whitelistedPerson;
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
@@ -997,7 +1168,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
                 assert false : "This person cannot be missing from addressbook";
             }
         }
-        addressBook.addBlacklistedPerson(newBlacklistPerson);
+        newBlacklistPerson = addressBook.addBlacklistedPerson(newBlacklistPerson);
         updateFilteredBlacklistedPersonList(PREDICATE_SHOW_ALL_BLACKLISTED_PERSONS);
         indicateAddressBookChanged();
         return newBlacklistPerson;
@@ -1027,6 +1198,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         indicateAddressBookChanged();
         return whitelistedPerson;
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
@@ -1043,50 +1215,58 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
     public void syncWhitelist() {
         filteredWhitelistedPersons = new FilteredList<>(this.addressBook.getWhitelistedPersonList());
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
     @Override
     public void changeListTo(String listName) {
+        setCurrentListName(listName);
         raise(new ChangeInternalListEvent(listName));
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
     /**
-     * Adds the picture of the person into app database and sets the person's display picture boolean status to true
-     * @return true if person's picture is successfully added
+     * Sets the path to the specified profile pictures folder in {@code userPrefs}
      */
     @Override
-    public boolean addProfilePicture(ReadOnlyPerson person) {
+    public void setProfilePicsPath(String path) {
+        userPrefs.setProfilePicturesFolderPath(path);
+    }
+
+    /**
+     * Adds the picture of the person into app database and sets the person's display picture boolean status to true
+     * @return updated {@code ReadOnlyPerson}.
+     */
+    @Override
+    public ReadOnlyPerson addProfilePicture(ReadOnlyPerson person) throws ProfilePictureNotFoundException {
         String imageName = person.getName().toString().replaceAll("\\s+", "");
         File imageFile = new File(ProfilePicturesFolder.getPath() + imageName + JPG_EXTENSION);
 
-        BufferedImage bufferedImage;
-
         if (imageFile.exists()) {
-            addressBook.addProfilePic(person);
-            try {
-                bufferedImage = ImageIO.read(imageFile);
-                ImageIO.write(bufferedImage, "jpg",
-                        new File(DEFAULT_INTERNAL_PROFILEPIC_FOLDER_PATH
-                                + imageName + JPG_EXTENSION));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ReadOnlyPerson updatedPerson = addressBook.addProfilePic(person);
             indicateAddressBookChanged();
-            return true;
+            return updatedPerson;
+        } else {
+            throw new ProfilePictureNotFoundException();
         }
-        return false;
     }
 
     /**
      * Sets the person's display picture boolean status to false
+     * @return updated {@code ReadOnlyPerson}.
      */
     @Override
-    public void removeProfilePicture(ReadOnlyPerson person) {
-        addressBook.removeProfilePic(person);
-        indicateAddressBookChanged();
+    public ReadOnlyPerson removeProfilePicture(ReadOnlyPerson person) throws ProfilePictureNotFoundException {
+        if (person.hasDisplayPicture()) {
+            ReadOnlyPerson updatedPerson = addressBook.removeProfilePic(person);
+            indicateAddressBookChanged();
+            return updatedPerson;
+        } else {
+            throw new ProfilePictureNotFoundException();
+        }
     }
 ```
 ###### \java\seedu\address\model\ModelManager.java
@@ -1114,6 +1294,7 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         filteredWhitelistedPersons.setPredicate(currentPredicate);
         return FXCollections.unmodifiableObservableList(filteredWhitelistedPersons);
     }
+
 ```
 ###### \java\seedu\address\model\ModelManager.java
 ``` java
@@ -1140,6 +1321,21 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
         filteredWhitelistedPersons.setPredicate(predicate);
         return filteredWhitelistedPersons.size();
     }
+
+```
+###### \java\seedu\address\model\ModelManager.java
+``` java
+    @Subscribe
+    public void handleMissingDisplayPictureEvent(MissingDisplayPictureEvent event) {
+        try {
+            removeProfilePicture(event.getPerson());
+        } catch (ProfilePictureNotFoundException e) {
+            assert false : "This is not possible as person's hasDisplayPicture boolean value must be true";
+        }
+    }
+
+
+}
 ```
 ###### \java\seedu\address\model\person\DateRepaid.java
 ``` java
@@ -1150,12 +1346,12 @@ public class UnbanCommandParser implements Parser<UnbanCommand> {
  */
 public class DateRepaid {
 
-    public static final String DATE_REPAID_PLACEHOLDER = "NOT REPAID";
+    public static final String NO_DATE_REPAID = "NOT REPAID";
 
     public final String value;
 
     public DateRepaid() {
-        value = DATE_REPAID_PLACEHOLDER;
+        value = NO_DATE_REPAID;
     }
 
     /**
@@ -1182,6 +1378,14 @@ public class DateRepaid {
     public int hashCode() {
         return value.hashCode();
     }
+}
+```
+###### \java\seedu\address\model\person\exceptions\ProfilePictureNotFoundException.java
+``` java
+/**
+ * Signals that the operation is unable to find the specified person's profile picture.
+ */
+public class ProfilePictureNotFoundException extends Exception {
 }
 ```
 ###### \java\seedu\address\model\person\Person.java
@@ -1221,6 +1425,22 @@ public class DateRepaid {
 ```
 ###### \java\seedu\address\model\person\Person.java
 ``` java
+    /**
+     * Returns boolean status of a person's display picture status.
+     */
+    @Override
+    public boolean hasDisplayPicture() {
+        return hasDisplayPicture;
+    }
+
+    /**
+     * Sets boolean status of a person's display picture status using the value of {@param hasDisplayPicture}.
+     */
+    @Override
+    public void setHasDisplayPicture(boolean hasDisplayPicture) {
+        this.hasDisplayPicture = hasDisplayPicture;
+    }
+
     /**
      * Sets date repaid of a person in the given {@code dateRepaid}.
      * @param dateRepaid must not be null.
@@ -1323,10 +1543,28 @@ public class DateRepaid {
     ObservableList<ReadOnlyPerson> getWhitelistedPersonList();
 
 ```
+###### \java\seedu\address\model\UserPrefs.java
+``` java
+    /**
+     * @return path of the profile pictures folder that resides in user's workspace
+     */
+    public String getProfilePicturesFolderPath() {
+        return profilePicturesFolderPath;
+    }
+
+    /**
+     * Sets the path of the profile pictures folder indicated by user
+     * @param path points to the folder that resides in user's workspace
+     */
+    public void setProfilePicturesFolderPath(String path) {
+        this.profilePicturesFolderPath = path;
+    }
+
+```
 ###### \java\seedu\address\storage\XmlSerializableAddressBook.java
 ``` java
     /**
-     * @return {@code ObservableList} of blacklisted persons.
+     * Returns {@code ObservableList} of blacklisted persons.
      */
     @Override
     public ObservableList<ReadOnlyPerson> getBlacklistedPersonList() {
@@ -1338,7 +1576,7 @@ public class DateRepaid {
     }
 
     /**
-     * @return {@code ObservableList} of whitelisted persons.
+     * Returns {@code ObservableList} of whitelisted persons.
      */
     @Override
     public ObservableList<ReadOnlyPerson> getWhitelistedPersonList() {
@@ -1348,6 +1586,7 @@ public class DateRepaid {
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
         return FXCollections.unmodifiableObservableList(whitelistedPersons);
     }
+
 ```
 ###### \java\seedu\address\ui\DebtorProfilePicture.java
 ``` java
@@ -1356,35 +1595,42 @@ public class DateRepaid {
  */
 public class DebtorProfilePicture extends UiPart<Region> {
     public static final String FXML = "DebtorProfilePicture.fxml";
-    public static final String DEFAULT_INTERNAL_PROFILEPIC_FOLDER_PATH = "src/main/resources/images/profilePics/";
-    public static final String DEFAULT_PROFILEPIC_PATH = "src/main/resources/images/profilePics/unknown.jpg";
+    public static final String DEFAULT_PROFILEPIC_PATH = "/images/profilePics/unknown.jpg";
     public static final String JPG_EXTENSION = ".jpg";
 
     @FXML
     private ImageView profilePic = new ImageView();
+    @FXML
+    private AnchorPane profilePicPlaceHolder;
 
     public DebtorProfilePicture(ReadOnlyPerson person) {
         super(FXML);
         String imageName = person.getName().toString().replaceAll("\\s+", "");
         String imagePath = DEFAULT_PROFILEPIC_PATH;
+        Image image = new Image(getClass().getResource(imagePath).toExternalForm());
 
         if (person.hasDisplayPicture()) {
-            imagePath =  DEFAULT_INTERNAL_PROFILEPIC_FOLDER_PATH + imageName + JPG_EXTENSION;
-        }
 
-        File file = new File(imagePath);
+            imagePath = ProfilePicturesFolder.getPath() + imageName + JPG_EXTENSION;
+            File imageFile = new File(imagePath);
 
-        Image image = null;
-
-        try {
-            image = new Image(file.toURI().toURL().toExternalForm());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+            if (!imageFile.exists()) {
+                person.setHasDisplayPicture(false);
+                raise(new MissingDisplayPictureEvent(person));
+            } else {
+                try {
+                    image = new Image(imageFile.toURI().toURL().toExternalForm());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         profilePic.setImage(image);
-        profilePic.setFitWidth(300);
-        profilePic.setFitHeight(300);
+        profilePic.setFitWidth(450);
+        profilePic.setFitHeight(450);
+        profilePicPlaceHolder.setTopAnchor(this.getImageView(), 20.0);
+        profilePicPlaceHolder.setRightAnchor(this.getImageView(), 50.0);
         registerAsAnEventHandler(this);
     }
 
@@ -1403,6 +1649,14 @@ public class DebtorProfilePicture extends UiPart<Region> {
     private void resetDebtorProfilePicture(ReadOnlyPerson person) {
         debtorProfilePicture = new DebtorProfilePicture(person);
         profilePicPlaceholder.getChildren().add(debtorProfilePicture.getImageView());
+    }
+
+```
+###### \java\seedu\address\ui\InfoPanel.java
+``` java
+    @Subscribe
+    private void handleChangeInternalListEvent(ChangeInternalListEvent event) {
+        unregisterAsAnEventHandler(this);
     }
 
 ```
@@ -1435,6 +1689,7 @@ public class DebtorProfilePicture extends UiPart<Region> {
         infoPanelPlaceholder.getChildren().clear();
         infoPanelPlaceholder.getChildren().add(infoPanel.getRoot());
     }
+
 ```
 ###### \java\seedu\address\ui\UiManager.java
 ``` java

@@ -28,8 +28,8 @@ public interface Model {
 
     /** {@code Predicate} that always evaluate to true */
     Predicate<ReadOnlyPerson> PREDICATE_SHOW_ALL_WHITELISTED_PERSONS = unused -> true;
-    //@@author
 
+    //@@author
     /** {@code Predicate} that always evaluate to true */
     Predicate<ReadOnlyPerson> PREDICATE_SHOW_ALL_OVERDUE_PERSONS = unused -> true;
 
@@ -45,8 +45,8 @@ public interface Model {
 
     /** Sets the name of current displayed list */
     void setCurrentListName(String currentList);
-    //@@author
 
+    //@@author
     /** Deletes the given person. */
     void deletePerson(ReadOnlyPerson target) throws PersonNotFoundException;
 
@@ -56,8 +56,8 @@ public interface Model {
 
     /** Removes the given person from whitelist and returns the updated person */
     ReadOnlyPerson removeWhitelistedPerson(ReadOnlyPerson target) throws PersonNotFoundException;
-    //@@author
 
+    //@@author
     /** Removes the given person from overdue list and returns the updated person */
     ReadOnlyPerson removeOverdueDebtPerson(ReadOnlyPerson target) throws PersonNotFoundException;
 
@@ -70,8 +70,8 @@ public interface Model {
 
     /** Adds the given person into whitelist and returns the added person */
     ReadOnlyPerson addWhitelistedPerson(ReadOnlyPerson person);
-    //@@author
 
+    //@@author
     /** Adds the given person into overdue list and returns the added person */
     ReadOnlyPerson addOverdueDebtPerson(ReadOnlyPerson person);
 
@@ -94,8 +94,8 @@ public interface Model {
 
     /** Returns an unmodifiable view of the whitelisted filtered person list */
     ObservableList<ReadOnlyPerson> getFilteredWhitelistedPersonList();
-    //@@author
 
+    //@@author
     /** Returns an unmodifiable view of the filtered person list with overdue debt */
     ObservableList<ReadOnlyPerson> getFilteredOverduePersonList();
 
@@ -120,8 +120,8 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     int updateFilteredWhitelistedPersonList(Predicate<ReadOnlyPerson> predicate);
-    //@@author
 
+    //@@author
     /**
      * Updates the filter of the filtered person list with overdue debt to filter by the given {@code predicate}.
      * @return size of current displayed filtered list.
@@ -163,12 +163,13 @@ public interface Model {
      */
     void logout();
 
+    //@@author jaivigneshvenugopal
     /**
      * Updates the list shown in Person List Panel to the requested list.
      */
     void changeListTo(String listName);
-    //@@author
 
+    //@@author
     /**
      * Retrieves the full list of persons.
      */

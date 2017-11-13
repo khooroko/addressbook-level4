@@ -17,7 +17,6 @@ public class WhitelistCommand extends Command {
     public static final String MESSAGE_SUCCESS = "Listed all debtors "
             + "who have cleared their debts";
 
-
     @Override
     public CommandResult execute() {
         requireNonNull(model);

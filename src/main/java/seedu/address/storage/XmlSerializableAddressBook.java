@@ -59,7 +59,7 @@ public class XmlSerializableAddressBook implements ReadOnlyAddressBook {
 
     //@@author jaivigneshvenugopal
     /**
-     * @return {@code ObservableList} of blacklisted persons.
+     * Returns {@code ObservableList} of blacklisted persons.
      */
     @Override
     public ObservableList<ReadOnlyPerson> getBlacklistedPersonList() {
@@ -71,7 +71,7 @@ public class XmlSerializableAddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * @return {@code ObservableList} of whitelisted persons.
+     * Returns {@code ObservableList} of whitelisted persons.
      */
     @Override
     public ObservableList<ReadOnlyPerson> getWhitelistedPersonList() {
@@ -81,8 +81,8 @@ public class XmlSerializableAddressBook implements ReadOnlyAddressBook {
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
         return FXCollections.unmodifiableObservableList(whitelistedPersons);
     }
-    //@@author
 
+    //@@author
     /**
      * @return {@code ObservableList} of persons with overdue debt.
      */

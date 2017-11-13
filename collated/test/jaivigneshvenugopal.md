@@ -86,67 +86,72 @@
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code AddPictureCommand}.
  */
-public class AddPictureCommandTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+public class AddPictureCommandTest extends CommandTest {
 
     @Test
-    public void execute_validIndexUnfilteredListInvalidPath_success() throws Exception {
-        ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        AddPictureCommand addPictureCommand = prepareCommand(INDEX_FIRST_PERSON);
+    public void execute_validIndexUnfilteredListInvalidPath_failure() throws Exception {
+        try {
+            ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+            AddPictureCommand addPictureCommand = prepareCommand(INDEX_FIRST_PERSON);
 
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(AddPictureCommand.MESSAGE_ADDPIC_FAILURE, personToUpdate.getName());
+            String expectedMessage = String.format(AddPictureCommand.MESSAGE_ADDPIC_FAILURE, personToUpdate.getName());
 
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.addProfilePicture(personToUpdate);
-
-        assertCommandSuccess(addPictureCommand, model, expectedMessage, expectedModel);
-        assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
-                .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+            assertCommandFailure(addPictureCommand, model, expectedMessage);
+            assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
+                    .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     @Test
     public void execute_validIndexUnfilteredListValidPath_success() throws Exception {
-        ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        AddPictureCommand addPictureCommand = prepareCommand(INDEX_FIRST_PERSON);
+        try {
+            ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+            AddPictureCommand addPictureCommand = prepareCommand(INDEX_FIRST_PERSON);
 
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(AddPictureCommand.MESSAGE_ADDPIC_SUCCESS, personToUpdate.getName());
+            String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
+                    + String.format(AddPictureCommand.MESSAGE_ADDPIC_SUCCESS, personToUpdate.getName());
 
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.addProfilePicture(personToUpdate);
-        SetPathCommand setPathCommand = prepareSetPathCommand("src/test/resources/TestProfilePics/");
-        setPathCommand.execute();
+            SetPathCommand setPathCommand = prepareSetPathCommand("src/test/resources/TestProfilePics/");
+            setPathCommand.execute();
 
-        assertCommandSuccess(addPictureCommand, model, expectedMessage, expectedModel);
-        assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
-                .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+            ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+            expectedModel.addProfilePicture(personToUpdate);
+
+            assertCommandSuccess(addPictureCommand, model, expectedMessage, expectedModel);
+            assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
+                    .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() throws Exception {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
-        AddPictureCommand addPictureCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(addPictureCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void execute_invalidIndexFilteredList_throwsCommandException() {
+    public void execute_invalidIndexFilteredList_throwsCommandException() throws Exception {
         showFirstPersonOnly(model);
 
         Index outOfBoundIndex = INDEX_SECOND_PERSON;
         // ensures that outOfBoundIndex is still in bounds of address book list
         assertTrue(outOfBoundIndex.getZeroBased() < model.getAddressBook().getPersonList().size());
 
-        AddPictureCommand addPictureCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(addPictureCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void equals() {
+    public void equals() throws Exception {
         AddPictureCommand addPictureFirstCommand = new AddPictureCommand(INDEX_FIRST_PERSON);
         AddPictureCommand addPictureSecondCommand = new AddPictureCommand(INDEX_SECOND_PERSON);
 
@@ -170,7 +175,7 @@ public class AddPictureCommandTest {
     /**
      * Returns a {@code AddPictureCommand} with the parameter {@code index}.
      */
-    private AddPictureCommand prepareCommand(Index index) {
+    private AddPictureCommand prepareCommand(Index index) throws CommandException {
         AddPictureCommand addPictureCommand = new AddPictureCommand(index);
         addPictureCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return addPictureCommand;
@@ -192,68 +197,74 @@ public class AddPictureCommandTest {
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code BanCommand}.
  */
-public class BanCommandTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+public class BanCommandTest extends CommandTest {
 
     @Test
-    public void execute_banPersonTwice_success() throws Exception {
-        ReadOnlyPerson personToBan = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+    public void execute_validIndexUnfilteredList_success() {
+        try {
+            ReadOnlyPerson personToBan = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+            BanCommand banCommand = prepareCommand(INDEX_FIRST_PERSON);
 
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(BanCommand.MESSAGE_BAN_PERSON_FAILURE, personToBan.getName());
+            String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
+                    + String.format(BanCommand.MESSAGE_BAN_PERSON_SUCCESS, personToBan.getName());
 
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.addBlacklistedPerson(personToBan);
+            ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+            expectedModel.addBlacklistedPerson(personToBan);
 
-        prepareCommand(INDEX_FIRST_PERSON).execute();
-        BanCommand banCommand = prepareCommand(INDEX_FIRST_PERSON);
-
-        assertCommandSuccess(banCommand, model, expectedMessage, expectedModel);
+            assertCommandSuccess(banCommand, model, expectedMessage, expectedModel);
+            assertTrue(personToBan.getAsText().equals(model.getFilteredPersonList()
+                    .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     @Test
-    public void execute_validIndexUnfilteredList_success() throws Exception {
-        ReadOnlyPerson personToBan = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        BanCommand banCommand = prepareCommand(INDEX_FIRST_PERSON);
+    public void execute_banPersonTwice_failure() {
+        try {
+            ReadOnlyPerson personToBan = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(BanCommand.MESSAGE_BAN_PERSON_SUCCESS, personToBan.getName());
+            String expectedMessage = String.format(BanCommand.MESSAGE_BAN_BLACKLISTED_PERSON_FAILURE,
+                    personToBan.getName());
 
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.addBlacklistedPerson(personToBan);
+            prepareCommand(INDEX_FIRST_PERSON).execute();
+            BanCommand banCommand = prepareCommand(INDEX_FIRST_PERSON);
 
-        assertCommandSuccess(banCommand, model, expectedMessage, expectedModel);
-        assertTrue(personToBan.getAsText().equals(model.getFilteredPersonList()
-                .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+            assertCommandFailure(banCommand, model, expectedMessage);
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() throws Exception {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
-        BanCommand banCommand = prepareCommand(outOfBoundIndex);
 
-        assertCommandFailure(banCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void execute_invalidIndexFilteredList_throwsCommandException() {
+    public void execute_invalidIndexFilteredList_throwsCommandException() throws Exception {
         showFirstPersonOnly(model);
 
         Index outOfBoundIndex = INDEX_SECOND_PERSON;
         // ensures that outOfBoundIndex is still in bounds of address book list
         assertTrue(outOfBoundIndex.getZeroBased() < model.getAddressBook().getPersonList().size());
 
-        BanCommand banCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(banCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
     }
 
 ```
 ###### \java\seedu\address\logic\commands\BanCommandTest.java
 ``` java
     @Test
-    public void equals() {
+    public void equals() throws Exception {
         BanCommand banFirstCommand = new BanCommand(INDEX_FIRST_PERSON);
         BanCommand banSecondCommand = new BanCommand(INDEX_SECOND_PERSON);
 
@@ -277,7 +288,7 @@ public class BanCommandTest {
     /**
      * Returns a {@code BanCommand} with the parameter {@code index}.
      */
-    private BanCommand prepareCommand(Index index) {
+    private BanCommand prepareCommand(Index index) throws CommandException {
         BanCommand banCommand = new BanCommand(index);
         banCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return banCommand;
@@ -286,7 +297,7 @@ public class BanCommandTest {
     /**
      * Returns a {@code BanCommand} with no parameters.
      */
-    private BanCommand prepareCommand() {
+    private BanCommand prepareCommand() throws CommandException {
         BanCommand banCommand = new BanCommand();
         banCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return banCommand;
@@ -296,15 +307,16 @@ public class BanCommandTest {
 ```
 ###### \java\seedu\address\logic\commands\BlacklistCommandTest.java
 ``` java
-public class BlacklistCommandTest {
+public class BlacklistCommandTest extends CommandTest {
 
-    private Model model;
     private Model expectedModel;
     private BlacklistCommand blacklistCommand;
 
     @Before
+    @Override
     public void setUp() {
         model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
         expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
         blacklistCommand = new BlacklistCommand();
@@ -315,7 +327,7 @@ public class BlacklistCommandTest {
     public void execute_listIsNotFiltered_showsSameList() {
         model.setCurrentListName("blacklist");
         assertCommandSuccess(blacklistCommand, model, ListObserver.BLACKLIST_NAME_DISPLAY_FORMAT
-                + blacklistCommand.MESSAGE_SUCCESS, expectedModel);
+                + BlacklistCommand.MESSAGE_SUCCESS, expectedModel);
     }
 
     @Test
@@ -323,7 +335,7 @@ public class BlacklistCommandTest {
         model.setCurrentListName("blacklist");
         showFirstBlacklistedPersonOnly(model);
         assertCommandSuccess(blacklistCommand, model, ListObserver.BLACKLIST_NAME_DISPLAY_FORMAT
-                + blacklistCommand.MESSAGE_SUCCESS, expectedModel);
+                + BlacklistCommand.MESSAGE_SUCCESS, expectedModel);
     }
 }
 
@@ -333,49 +345,76 @@ public class BlacklistCommandTest {
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code DeletePictureCommand}.
  */
-public class DeletePictureCommandTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+public class DeletePictureCommandTest extends CommandTest {
 
     @Test
-    public void execute_validIndexUnfilteredList_success() throws Exception {
-        ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        DeletePictureCommand deletePictureCommand = prepareCommand(INDEX_FIRST_PERSON);
+    public void execute_personHasDisplayPicture_success() throws Exception {
+        try {
+            ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(DeletePictureCommand.MESSAGE_DELPIC_SUCCESS, personToUpdate.getName());
+            SetPathCommand setPathCommand = prepareSetPathCommand("src/test/resources/TestProfilePics/");
+            setPathCommand.execute();
 
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.removeProfilePicture(personToUpdate);
+            AddPictureCommand addPictureCommand = prepareAddPictureCommand(INDEX_FIRST_PERSON);
+            addPictureCommand.execute();
 
-        assertCommandSuccess(deletePictureCommand, model, expectedMessage, expectedModel);
-        assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
-                .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+            ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+            DeletePictureCommand deletePictureCommand = prepareCommand(INDEX_FIRST_PERSON);
+
+            String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
+                    + String.format(DeletePictureCommand.MESSAGE_DELETE_PICTURE_SUCCESS, personToUpdate.getName());
+
+            assertCommandSuccess(deletePictureCommand, model, expectedMessage, expectedModel);
+            assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
+                    .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
+    }
+
+    @Test
+    public void execute_personHasNoDisplayPicture_failure() throws Exception {
+        try {
+            ReadOnlyPerson personToUpdate = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+            DeletePictureCommand deletePictureCommand = prepareCommand(INDEX_FIRST_PERSON);
+
+            String expectedMessage = String.format(DeletePictureCommand
+                    .MESSAGE_DELETE_PICTURE_FAILURE, personToUpdate.getName());
+
+            assertCommandFailure(deletePictureCommand, model, expectedMessage);
+            assertTrue(personToUpdate.getAsText().equals(model.getFilteredPersonList()
+                    .get(INDEX_FIRST_PERSON.getZeroBased()).getAsText()));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() throws Exception {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
-        DeletePictureCommand deletePictureCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(deletePictureCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void execute_invalidIndexFilteredList_throwsCommandException() {
+    public void execute_invalidIndexFilteredList_throwsCommandException() throws Exception {
         showFirstPersonOnly(model);
 
         Index outOfBoundIndex = INDEX_SECOND_PERSON;
         // ensures that outOfBoundIndex is still in bounds of address book list
         assertTrue(outOfBoundIndex.getZeroBased() < model.getAddressBook().getPersonList().size());
 
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
         DeletePictureCommand deletePictureCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(deletePictureCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        fail(UNEXPECTED_EXECTION);
     }
 
     @Test
-    public void equals() {
+    public void equals() throws Exception {
         DeletePictureCommand deletePictureFirstCommand = new DeletePictureCommand(INDEX_FIRST_PERSON);
         DeletePictureCommand deletePictureSecondCommand = new DeletePictureCommand(INDEX_SECOND_PERSON);
 
@@ -399,10 +438,28 @@ public class DeletePictureCommandTest {
     /**
      * Returns a {@code DeletePictureCommand} with the parameter {@code index}.
      */
-    private DeletePictureCommand prepareCommand(Index index) {
+    private DeletePictureCommand prepareCommand(Index index) throws CommandException {
         DeletePictureCommand deletePictureCommand = new DeletePictureCommand(index);
         deletePictureCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return deletePictureCommand;
+    }
+
+    /**
+     * Returns a {@code AddPictureCommand} with the parameter {@code index}.
+     */
+    private AddPictureCommand prepareAddPictureCommand(Index index) throws CommandException {
+        AddPictureCommand addPictureCommand = new AddPictureCommand(index);
+        addPictureCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return addPictureCommand;
+    }
+
+    /**
+     * Returns a {@code SetPathCommand} with no parameters.
+     */
+    private SetPathCommand prepareSetPathCommand(String path) {
+        SetPathCommand setPathCommand = new SetPathCommand(path);
+        setPathCommand.setData(model, new CommandHistory(), new UndoRedoStack());
+        return setPathCommand;
     }
 }
 ```
@@ -411,25 +468,7 @@ public class DeletePictureCommandTest {
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code RepaidCommand}.
  */
-public class RepaidCommandTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-
-    @Test
-    public void execute_repaidPersonTwice_success() throws Exception {
-        ReadOnlyPerson repaidPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(RepaidCommand.MESSAGE_REPAID_PERSON_FAILURE, repaidPerson.getName());;
-
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        expectedModel.addWhitelistedPerson(repaidPerson);
-
-        prepareCommand(INDEX_FIRST_PERSON).execute();
-        RepaidCommand repaidCommand = prepareCommand(INDEX_FIRST_PERSON);
-
-        assertCommandSuccess(repaidCommand, model, expectedMessage, expectedModel);
-    }
+public class RepaidCommandTest extends CommandTest {
 
     @Test
     public void execute_validIndexUnfilteredList_success() throws Exception {
@@ -446,24 +485,38 @@ public class RepaidCommandTest {
     }
 
     @Test
-    public void execute_invalidIndexUnfilteredList_throwsCommandException() throws Exception {
-        Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
-        RepaidCommand repaidCommand = prepareCommand(outOfBoundIndex);
+    public void execute_repaidPersonTwice_failure() throws Exception {
+        ReadOnlyPerson repaidPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
-        assertCommandFailure(repaidCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        String expectedMessage = String.format(RepaidCommand.MESSAGE_REPAID_PERSON_FAILURE, repaidPerson.getName());
+
+        prepareCommand(INDEX_FIRST_PERSON).execute();
+        RepaidCommand repaidCommand = prepareCommand(INDEX_FIRST_PERSON);
+
+        assertCommandFailure(repaidCommand, model, expectedMessage);
     }
 
     @Test
-    public void execute_invalidIndexFilteredList_throwsCommandException() {
+    public void execute_invalidIndexUnfilteredList_throwsCommandException() throws Exception {
+        Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        prepareCommand(outOfBoundIndex);
+        fail(UNEXPECTED_EXECTION);
+    }
+
+    @Test
+    public void execute_invalidIndexFilteredList_throwsCommandException() throws Exception {
         showFirstPersonOnly(model);
 
         Index outOfBoundIndex = INDEX_SECOND_PERSON;
         // ensures that outOfBoundIndex is still in bounds of address book list
         assertTrue(outOfBoundIndex.getZeroBased() < model.getAddressBook().getPersonList().size());
 
+        thrown.expect(CommandException.class);
+        thrown.expectMessage(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
         RepaidCommand repaidCommand = prepareCommand(outOfBoundIndex);
-
-        assertCommandFailure(repaidCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        fail(UNEXPECTED_EXECTION);
     }
 
 ```
@@ -471,30 +524,34 @@ public class RepaidCommandTest {
 ``` java
     @Test
     public void equals() {
-        RepaidCommand repaidFirstCommand = new RepaidCommand(INDEX_FIRST_PERSON);
-        RepaidCommand repaidSecondCommand = new RepaidCommand(INDEX_SECOND_PERSON);
+        try {
+            RepaidCommand repaidFirstCommand = new RepaidCommand(INDEX_FIRST_PERSON);
+            RepaidCommand repaidSecondCommand = new RepaidCommand(INDEX_SECOND_PERSON);
 
-        // same object -> returns true
-        assertTrue(repaidFirstCommand.equals(repaidFirstCommand));
+            // same object -> returns true
+            assertTrue(repaidFirstCommand.equals(repaidFirstCommand));
 
-        // same values -> returns true
-        RepaidCommand repaidFirstCommandCopy = new RepaidCommand(INDEX_FIRST_PERSON);
-        assertTrue(repaidFirstCommand.equals(repaidFirstCommand));
+            // same values -> returns true
+            RepaidCommand repaidFirstCommandCopy = new RepaidCommand(INDEX_FIRST_PERSON);
+            assertTrue(repaidFirstCommand.equals(repaidFirstCommand));
 
-        // different types -> returns false
-        assertFalse(repaidFirstCommand.equals(1));
+            // different types -> returns false
+            assertFalse(repaidFirstCommand.equals(1));
 
-        // null -> returns false
-        assertFalse(repaidFirstCommand.equals(null));
+            // null -> returns false
+            assertFalse(repaidFirstCommand.equals(null));
 
-        // different person -> returns false
-        assertFalse(repaidFirstCommand.equals(repaidSecondCommand));
+            // different person -> returns false
+            assertFalse(repaidFirstCommand.equals(repaidSecondCommand));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     /**
      * Returns a {@code RepaidCommand} with the parameter {@code index}.
      */
-    private RepaidCommand prepareCommand(Index index) {
+    private RepaidCommand prepareCommand(Index index) throws CommandException {
         RepaidCommand repaidCommand = new RepaidCommand(index);
         repaidCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return repaidCommand;
@@ -503,7 +560,7 @@ public class RepaidCommandTest {
     /**
      * Returns a {@code RepaidCommand} with no parameters.
      */
-    private RepaidCommand prepareCommand() {
+    private RepaidCommand prepareCommand() throws CommandException {
         RepaidCommand repaidCommand = new RepaidCommand();
         repaidCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return repaidCommand;
@@ -516,13 +573,11 @@ public class RepaidCommandTest {
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code SetPathCommand}.
  */
-public class SetPathCommandTest {
-
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+public class SetPathCommandTest extends CommandTest {
 
     @Test
     public void execute_setPath_success() throws Exception {
-        String path = "C:/Users/acer/Desktop/SE/profilepic/";
+        String path = "src/main/";
         SetPathCommand setPathCommand = prepareSetPathCommand(path);
         setPathCommand.execute();
 
@@ -530,9 +585,9 @@ public class SetPathCommandTest {
     }
 
     @Test
-    public void execute_setPathBackSlashReplacedToForwardSlash_success() throws Exception {
-        String path = "C:\\Users\\acer\\Desktop\\SE\\profilepic";
-        String expectedPath = "C:/Users/acer/Desktop/SE/profilepic";
+    public void execute_setPathMissingForwardSlashGetsConcatenated_success() throws Exception {
+        String path = "src/main";
+        String expectedPath = "src/main/";
 
         SetPathCommand setPathCommand = prepareSetPathCommand(path);
         setPathCommand.execute();
@@ -555,22 +610,7 @@ public class SetPathCommandTest {
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code UnbanCommand}.
  */
-public class UnbanCommandTest {
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-
-    @Test
-    public void execute_unbanPersonWhoIsNotBlacklisted_failure() throws Exception {
-        ReadOnlyPerson personToUnban = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-
-        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-
-        String expectedMessage = ListObserver.MASTERLIST_NAME_DISPLAY_FORMAT
-                + String.format(UnbanCommand.MESSAGE_UNBAN_PERSON_FAILURE, personToUnban.getName());
-
-        UnbanCommand unbanCommand = prepareCommand(INDEX_FIRST_PERSON);
-
-        assertCommandSuccess(unbanCommand, model, expectedMessage, expectedModel);
-    }
+public class UnbanCommandTest extends CommandTest {
 
     @Test
     public void execute_validIndexUnfilteredList_success() throws Exception {
@@ -586,35 +626,50 @@ public class UnbanCommandTest {
         assertCommandSuccess(unbanCommand, model, expectedMessage, expectedModel);
     }
 
+    @Test
+    public void execute_unbanPersonWhoIsNotBlacklisted_failure() throws Exception {
+        ReadOnlyPerson personToUnban = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+
+        String expectedMessage = String.format(UnbanCommand.MESSAGE_UNBAN_PERSON_FAILURE, personToUnban.getName());
+
+        UnbanCommand unbanCommand = prepareCommand(INDEX_FIRST_PERSON);
+
+        assertCommandFailure(unbanCommand, model, expectedMessage);
+    }
+
 ```
 ###### \java\seedu\address\logic\commands\UnbanCommandTest.java
 ``` java
     @Test
     public void equals() {
-        UnbanCommand unbanFirstCommand = new UnbanCommand(INDEX_FIRST_PERSON);
-        UnbanCommand unbanSecondCommand = new UnbanCommand(INDEX_SECOND_PERSON);
+        try {
+            UnbanCommand unbanFirstCommand = new UnbanCommand(INDEX_FIRST_PERSON);
+            UnbanCommand unbanSecondCommand = new UnbanCommand(INDEX_SECOND_PERSON);
 
-        // same object -> returns true
-        assertTrue(unbanFirstCommand.equals(unbanFirstCommand));
+            // same object -> returns true
+            assertTrue(unbanFirstCommand.equals(unbanFirstCommand));
 
-        // same values -> returns true
-        UnbanCommand unbanFirstCommandCopy = new UnbanCommand(INDEX_FIRST_PERSON);
-        assertTrue(unbanFirstCommand.equals(unbanFirstCommandCopy));
+            // same values -> returns true
+            UnbanCommand unbanFirstCommandCopy = new UnbanCommand(INDEX_FIRST_PERSON);
+            assertTrue(unbanFirstCommand.equals(unbanFirstCommandCopy));
 
-        // different types -> returns false
-        assertFalse(unbanFirstCommand.equals(1));
+            // different types -> returns false
+            assertFalse(unbanFirstCommand.equals(1));
 
-        // null -> returns false
-        assertFalse(unbanFirstCommand.equals(null));
+            // null -> returns false
+            assertFalse(unbanFirstCommand.equals(null));
 
-        // different person -> returns false
-        assertFalse(unbanFirstCommand.equals(unbanSecondCommand));
+            // different person -> returns false
+            assertFalse(unbanFirstCommand.equals(unbanSecondCommand));
+        } catch (CommandException ce) {
+            ce.printStackTrace();
+        }
     }
 
     /**
      * Returns a {@code UnbanCommand} with the parameter {@code index}.
      */
-    private UnbanCommand prepareCommand(Index index) {
+    private UnbanCommand prepareCommand(Index index) throws CommandException {
         UnbanCommand unbanCommand = new UnbanCommand(index);
         unbanCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return unbanCommand;
@@ -623,7 +678,7 @@ public class UnbanCommandTest {
     /**
      * Returns a {@code UnbanCommand} with no parameters.
      */
-    private UnbanCommand prepareCommand() {
+    private UnbanCommand prepareCommand() throws CommandException {
         UnbanCommand unbanCommand = new UnbanCommand();
         unbanCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return unbanCommand;
@@ -633,15 +688,15 @@ public class UnbanCommandTest {
 ```
 ###### \java\seedu\address\logic\commands\WhitelistCommandTest.java
 ``` java
-public class WhitelistCommandTest {
+public class WhitelistCommandTest extends CommandTest {
 
-    private Model model;
     private Model expectedModel;
     private WhitelistCommand whitelistCommand;
 
+    @Override
     @Before
     public void setUp() {
-        model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
         expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
         whitelistCommand = new WhitelistCommand();
@@ -675,13 +730,19 @@ public class WhitelistCommandTest {
  * The path variation for those two cases occur inside the ParserUtil, and
  * therefore should be covered by the ParserUtilTest.
  */
-public class AddPictureCommandParserTest {
+public class AddPictureCommandParserTest extends CommandTest {
     private AddPictureCommandParser parser = new AddPictureCommandParser();
 
     @Test
-    public void parse_validArgs_returnsAddPictureCommand() {
-        assertParseSuccess(parser, "", new AddPictureCommand());
+    public void parse_validArgs_returnsAddPictureCommand() throws Exception {
         assertParseSuccess(parser, "1", new AddPictureCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_noIndex_returnsAddPictureCommand() throws Exception {
+        selectFirstPerson();
+        assertEquals(new AddPictureCommand(), new AddPictureCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "", new AddPictureCommand());
     }
 
     @Test
@@ -699,13 +760,19 @@ public class AddPictureCommandParserTest {
  * The path variation for those two cases occur inside the ParserUtil, and
  * therefore should be covered by the ParserUtilTest.
  */
-public class BanCommandParserTest {
+public class BanCommandParserTest extends CommandTest {
     private BanCommandParser parser = new BanCommandParser();
 
     @Test
-    public void parse_validArgs_returnsBanCommand() {
-        assertParseSuccess(parser, "", new BanCommand());
+    public void parse_validArgs_returnsBanCommand() throws Exception {
         assertParseSuccess(parser, "1", new BanCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_noIndex_returnsBanCommand() throws Exception {
+        selectFirstPerson();
+        assertEquals(new BanCommand(), new BanCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "", new BanCommand());
     }
 
     @Test
@@ -723,13 +790,19 @@ public class BanCommandParserTest {
  * The path variation for those two cases occur inside the ParserUtil, and
  * therefore should be covered by the ParserUtilTest.
  */
-public class DeletePictureCommandParserTest {
+public class DeletePictureCommandParserTest extends CommandTest {
     private DeletePictureCommandParser parser = new DeletePictureCommandParser();
 
     @Test
-    public void parse_validArgs_returnsAddPictureCommand() {
-        assertParseSuccess(parser, "", new DeletePictureCommand());
+    public void parse_validArgs_returnsDeletePictureCommand() throws Exception {
         assertParseSuccess(parser, "1", new DeletePictureCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_noIndex_returnsDeletePictureCommand() throws Exception {
+        selectFirstPerson();
+        assertEquals(new DeletePictureCommand(), new DeletePictureCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "", new DeletePictureCommand());
     }
 
     @Test
@@ -749,14 +822,20 @@ public class DeletePictureCommandParserTest {
  * The path variation for those two cases occur inside the ParserUtil, and
  * therefore should be covered by the ParserUtilTest.
  */
-public class RepaidCommandParserTest {
+public class RepaidCommandParserTest extends CommandTest {
 
     private RepaidCommandParser parser = new RepaidCommandParser();
 
     @Test
-    public void parse_validArgs_returnsRepaidCommand() {
-        assertParseSuccess(parser, "", new RepaidCommand());
+    public void parse_validArgs_returnsRepaidCommand() throws Exception {
         assertParseSuccess(parser, "1", new RepaidCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_noIndex_returnsRepaidCommand() throws Exception {
+        selectFirstPerson();
+        assertEquals(new RepaidCommand(), new RepaidCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "", new RepaidCommand());
     }
 
     @Test
@@ -774,13 +853,20 @@ public class RepaidCommandParserTest {
  * The path variation for those two cases occur inside the ParserUtil, and
  * therefore should be covered by the ParserUtilTest.
  */
-public class UnbanCommandParserTest {
+public class UnbanCommandParserTest extends CommandTest {
     private UnbanCommandParser parser = new UnbanCommandParser();
 
     @Test
-    public void parse_validArgs_returnsUnBanCommand() {
-        assertParseSuccess(parser, "", new UnbanCommand());
+    public void parse_validArgs_returnsUnBanCommand() throws Exception {
         assertParseSuccess(parser, "1", new UnbanCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_noIndex_returnsUnBanCommand() throws Exception {
+        model.changeListTo(BlacklistCommand.COMMAND_WORD);
+        selectFirstPerson();
+        assertEquals(new UnbanCommand(), new UnbanCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "", new UnbanCommand());
     }
 
     @Test
@@ -801,6 +887,7 @@ public class WhitelistSyncTest {
     @Before
     public void setUp() {
         model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        ListObserver.init(model);
     }
 
     @Test
@@ -1176,7 +1263,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code BorrowCommand} with the parameter {@code index} & {@code amount}.
      */
-    private BorrowCommand prepareBorrowCommand(Index index, Debt amount) {
+    private BorrowCommand prepareBorrowCommand(Index index, Debt amount) throws CommandException {
         BorrowCommand borrowCommand = new BorrowCommand(index, amount);
         borrowCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return borrowCommand;
@@ -1185,7 +1272,8 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code EditCommand} with the parameter {@code index} & {@code EditPersonDescriptor}.
      */
-    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) {
+    private EditCommand prepareEditCommand(Index index, EditCommand.EditPersonDescriptor descriptor) throws
+            CommandException {
         EditCommand editCommand = new EditCommand(index, descriptor);
         editCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return editCommand;
@@ -1203,7 +1291,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code RepaidCommand} with the parameter {@code index}.
      */
-    private RepaidCommand prepareRepaidCommand(Index index) {
+    private RepaidCommand prepareRepaidCommand(Index index) throws CommandException {
         RepaidCommand repaidCommand = new RepaidCommand(index);
         repaidCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return repaidCommand;
@@ -1212,7 +1300,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code UnbanCommand} with the parameter {@code index}.
      */
-    private UnbanCommand prepareUnbanCommand(Index index) {
+    private UnbanCommand prepareUnbanCommand(Index index) throws CommandException {
         UnbanCommand unbanCommand = new UnbanCommand(index);
         unbanCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return unbanCommand;
@@ -1221,7 +1309,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code PaybackCommand} with the parameter {@code index} & {@code amount}.
      */
-    private PaybackCommand preparePaybackCommand(Index index, Debt amount) {
+    private PaybackCommand preparePaybackCommand(Index index, Debt amount) throws CommandException {
         PaybackCommand paybackCommand = new PaybackCommand(index, amount);
         paybackCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return paybackCommand;
@@ -1230,7 +1318,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code DeleteCommand} with the parameter {@code index}.
      */
-    private DeleteCommand prepareDeleteCommand(Index index) {
+    private DeleteCommand prepareDeleteCommand(Index index) throws CommandException {
         DeleteCommand deleteCommand = new DeleteCommand(index);
         deleteCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return deleteCommand;
@@ -1239,7 +1327,7 @@ public class WhitelistSyncTest {
     /**
      * Returns a {@code BanCommand} with the parameter {@code index}.
      */
-    private BanCommand prepareBanCommand(Index index) {
+    private BanCommand prepareBanCommand(Index index) throws CommandException {
         BanCommand banCommand = new BanCommand(index);
         banCommand.setData(model, new CommandHistory(), new UndoRedoStack());
         return banCommand;
@@ -1283,6 +1371,43 @@ public class WhitelistSyncTest {
             .withDeadline(Deadline.NO_DEADLINE_SET).withHandphone("94823442").withInterest(Interest.NO_INTEREST_SET)
             .withEmail("anna@example.com").withAddress("4th street").withHomePhone("63333303")
             .withPostalCode("111111").withDebt("0").withTotalDebt("123456").withOfficePhone("60000030").build();
+
+```
+###### \java\seedu\address\testutil\TypicalPersons.java
+``` java
+    /**
+     * Returns an {@code AddressBook} with all the typical persons.
+     */
+    public static AddressBook getTypicalAddressBook() {
+        AddressBook ab = new AddressBook();
+        for (ReadOnlyPerson person : getTypicalPersons()) {
+            try {
+                ab.addPerson(person);
+            } catch (DuplicatePersonException e) {
+                assert false : "It is not possible to have a duplicate person added into the addressbook";
+            }
+        }
+
+        for (ReadOnlyPerson person : getTypicalBlacklistedPersons()) {
+            ab.addBlacklistedPerson(person);
+        }
+
+        for (ReadOnlyPerson person : getTypicalWhitelistedPersons()) {
+            ab.addWhitelistedPerson(person);
+        }
+
+        for (ReadOnlyPerson person : getTypicalOverdueListPersons()) {
+            ab.addOverdueDebtPerson(person);
+        }
+        return ab;
+    }
+
+    public static List<ReadOnlyPerson> getTypicalPersons() {
+        return new ArrayList<>(Arrays
+                .asList(ALICE, BENSON, CARL, DANIEL, ELLE, FIONA, GEORGE,
+                        JELENA, WEIPING, JAIVIGNESH, LAWRENCE, ARCHANA, SIRISHA, RUSHAN, KENNARD));
+    }
+
 ```
 ###### \java\seedu\address\testutil\TypicalPersons.java
 ``` java
@@ -1293,4 +1418,5 @@ public class WhitelistSyncTest {
     public static List<ReadOnlyPerson> getTypicalWhitelistedPersons() {
         return new ArrayList<>(Arrays.asList(ARCHANA, SIRISHA, RUSHAN));
     }
+
 ```
