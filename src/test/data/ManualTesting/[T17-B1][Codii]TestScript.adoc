@@ -41,7 +41,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 . `login loanShark97 ?what?The//`
 ** Should show "Password can only consist of uppercase letters (A-Z), lowercase letters (a-z) digits (0-9) and special characters (!@#$&()_-.+)" in result display.
 . `login fakeuser fakepassword`
-** Should show "Unable to log into Address Book" in result display.
+** Should show "Unable to log into Codii" in result display.
 . `login     loanShark97       hitMeUp123`
 ** Should show invalid command format message in result display and incorrect masking of password.
 . `login loanShark97 hitMeUp123`
@@ -54,7 +54,7 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Should show username and password fields and `Log in` and `Back to command box` buttons.
 . Enter `123456` into password field and press kbd:[Enter]
 ** Should show "Username cannot be empty" in result display.
-. Clear the password field and enter `123456` into username field, then press kbd:[Enter] 
+. Clear the password field and enter `123456` into username field, then press kbd:[Enter]
 ** Should show "Password cannot be empty" in result display.
 . Clear username and password fields and press kbd:[Enter]
 ** Should show "Username cannot be empty" in result display.
@@ -62,12 +62,12 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 ** Should show "Length of username cannot be less than 6 characters." in result display.
 . Enter `loanShark97` into username field and `short` into password field, then click on `Log in`
 ** Should show "Length of password cannot be less than 6 characters." in result display.
-. Enter `@@@@@@` into username field and `hitMeUp123` into password field, then press kbd:[Enter] 
+. Enter `@@@@@@` into username field and `hitMeUp123` into password field, then press kbd:[Enter]
 ** Should show "Username can only consist of uppercase letters (A-Z), lowercase letters (a-z), digits (0-9) and underscores (_)" in result display.
 . Enter `loanShark97` into username field and `?what?The//` into password field, then press kbd:[Enter]
 ** Should show "Password can only consist of uppercase letters (A-Z), lowercase letters (a-z) digits (0-9) and special characters (!@#$&()_-.+)" in result display.
 . Enter `fakeuser` into username field and `fakepassword` into password field, then click on `Log in`
-** Should show "Unable to log into Address Book" in result display.
+** Should show "Unable to log into Codii" in result display.
 . Enter `loanShark97` into username field and `hitMeUp123` into password field, then press kbd:[Enter]
 ** Should log in successfully.
 . `logout`
