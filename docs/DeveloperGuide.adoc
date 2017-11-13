@@ -690,7 +690,7 @@ The activity diagram below, Figure 4.8.1, shows the overall flow of the command 
 image::LoginActivityDiagram.PNG[width="800"]
 _Figure 4.8.1 : Activity diagram of how the `login` command works for both CLI and GUI version_
 
-When a user enters the `logout` command, the `LogoutCommand` class in the `Logic` component will call the `ModelManager#logout()` method. Two events will be raised: `LoginAppRequestEvent` and `LogoutAppRequestEvent`. `LoginAppRequestEvent` is to set the `isLoggedIn` variable in `LoginCommand` to `false` and `LogoutAppRequestEvent` is to set the `isLoggedOut` variable in `LogoutCommand` to `true`. Both events need to be raised to notify the `UI` component to go back to the welcome page and restrict the commands that are allowed to be executed.
+When a user enters the `logout` command, the `LogoutCommand` class in the `Logic` component will call the `ModelManager#logout()` method. Two events will be raised: `LoginAppRequestEvent` and `LogoutAppRequestEvent`. `LoginAppRequestEvent` is to set the `isLoggedIn` variable in `LoginCommand` to `false` and `LogoutAppRequestEvent` is to set the `isLoggedOut` variable in `LogoutCommand` to `true`. Both events need to be raised to notify the `UI` component to go back to the welcome page and restrict the commands that are allowed to be executed. The two events will also notify `Logic` component to clear the command history and undo and redo stacks.
 
 ==== Design Considerations
 
