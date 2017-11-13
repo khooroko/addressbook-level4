@@ -24,7 +24,7 @@ public class AddPictureCommand extends UndoableCommand {
     public static final String MESSAGE_ADDPIC_SUCCESS = "%1$s profile picture has been updated!";
     public static final String MESSAGE_ADDPIC_FAILURE = "Unable to update profile picture!";
 
-    private ReadOnlyPerson personToUpdate;
+    private final ReadOnlyPerson personToUpdate;
 
     public AddPictureCommand() throws CommandException {
         personToUpdate = selectPersonForCommand();
@@ -36,15 +36,15 @@ public class AddPictureCommand extends UndoableCommand {
 
     @Override
     public CommandResult executeUndoableCommand() throws CommandException {
-
+        ReadOnlyPerson targetPerson;
         try {
-            personToUpdate = model.addProfilePicture(personToUpdate);
+            targetPerson = model.addProfilePicture(personToUpdate);
         } catch (ProfilePictureNotFoundException ppnfe) {
             throw new CommandException(String.format(MESSAGE_ADDPIC_FAILURE, personToUpdate.getName()));
         }
 
         ListObserver.updateCurrentFilteredList(PREDICATE_SHOW_ALL_PERSONS);
-        reselectPerson(personToUpdate);
+        reselectPerson(targetPerson);
 
         String currentList = ListObserver.getCurrentListName();
 
