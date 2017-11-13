@@ -42,7 +42,7 @@ public class PasswordSecurity {
     }
 
     /**
-     * Generates a random salt.
+     * Returns a generated a random salt.
      */
     public static byte[] getSalt() {
         SecureRandom secureRandom = null;
