@@ -28,6 +28,9 @@ link:https://github.com/CS2103AUG2017-T17-B1/main/blob/master/docs/UserGuide.ado
 === Login screen
 
 ==== CLI version of Login
+[NOTE]
+Do not copy and paste commands into the command box when testing CLI login. Please manually type out the commands. Refer to CLI login section in the user guide for more information.+
+
 . `help`
 ** Help window should open.
 . `list`
