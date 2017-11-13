@@ -46,14 +46,15 @@ public class BorrowCommandParser implements Parser<BorrowCommand> {
             }
 
             return new BorrowCommand(debtAmount);
-        } else {
-            try {
-                index = ParserUtil.parseIndex(argsList[0]);
-                debtAmount = new Debt(argsList[1]);
-            } catch (IllegalValueException ive) {
-                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, BorrowCommand.MESSAGE_USAGE));
-            }
         }
+
+        try {
+            index = ParserUtil.parseIndex(argsList[0]);
+            debtAmount = new Debt(argsList[1]);
+        } catch (IllegalValueException ive) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, BorrowCommand.MESSAGE_USAGE));
+        }
+
 
         return new BorrowCommand(index, debtAmount);
     }

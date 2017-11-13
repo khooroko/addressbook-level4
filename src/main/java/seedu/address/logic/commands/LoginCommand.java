@@ -40,19 +40,10 @@ public class LoginCommand extends Command {
         isLoggedIn = val;
     }
 
-    /**
-     * Verifies if user is valid.
-     * @throws UserNotFoundException if user is not valid
-     * @throws IllegalValueException if either username or password do not meet the username or password requirements
-     */
-    private void verifyUser() throws UserNotFoundException, IllegalValueException {
-        model.authenticateUser(username, password);
-    }
-
     @Override
     public CommandResult execute() throws CommandException {
         try {
-            verifyUser();
+            model.authenticateUser(username, password);
             return new CommandResult(MESSAGE_LOGIN_ACKNOWLEDGEMENT);
         } catch (UserNotFoundException unfe) {
             throw new CommandException(MESSAGE_LOGIN_UNSUCCESSFUL);
