@@ -115,11 +115,11 @@ include::../DeveloperGuide.adoc[tag=filterTags]
 
 === Other contributions
 
-* Nag about code quality
 * Reduce information in person card (Pull request https://github.com/CS2103AUG2017-T17-B1/main/pull/239[#239])
 * Improve welcome page (Pull request https://github.com/CS2103AUG2017-T17-B1/main/pull/211[#211])
 * Add debt repayment progress bar (Pull requests https://github.com/CS2103AUG2017-T17-B1/main/pull/194[#194], https://github.com/CS2103AUG2017-T17-B1/main/pull/210[#210])
 * Improve info panel (Commit https://github.com/CS2103AUG2017-T17-B1/main/pull/299/commits/3f86f59883a6785a69bad3690047c8f5f9e69692[enhance info panel])
+* Help others through slack and forum (Issues https://github.com/nus-cs2103-AY1718S1/forum/issues/177[#177] and https://github.com/nus-cs2103-AY1718S1/forum/issues/81[#81]/ Slack: https://nus-cs2103.slack.com/files/U6QDTT221/F7KL54QN5/image_uploaded_from_ios.jpg[fields not showing information] and explaining the difference between git fetch and git pull)
 
 == Project: Modulus
 [https://github.com/Kowalski985/Modulus/[Modulus]] is a web app to make module mapping more convenient for NUS students going overseas for exchange. This project was developed in pairs for [http://nusskylab-dev.comp.nus.edu.sg/[CP2106 Independent Software Development Project (Orbital)]].
