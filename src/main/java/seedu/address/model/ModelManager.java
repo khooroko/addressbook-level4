@@ -470,11 +470,24 @@ public class ModelManager extends ComponentManager implements Model {
             throw new ProfilePictureNotFoundException();
         }
     }
-    //@@author
+
+    //@@author lawwman
+    /**
+     * Checks through the address book for any person whose debt should be accrued.
+     */
+    public void checkAndUpdateInterest() {
+        for (ReadOnlyPerson person : allPersons) {
+            if (!person.getInterest().value.equals("No interest set.")
+                    && (person.checkLastAccruedDate(new Date()) != 0)) {
+                updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
+            }
+        }
+    }
 
 
     //=========== Filtered Person List Accessors =============================================================
 
+    //@@author
     /**
      * Returns an unmodifiable view of the list of {@code ReadOnlyPerson} backed by the internal list of
      * {@code addressBook}
@@ -655,12 +668,7 @@ public class ModelManager extends ComponentManager implements Model {
     public void handleLoginUpdateDebt(LoginAppRequestEvent event) {
         // login is successful
         if (event.getLoginStatus() == true) {
-            for (ReadOnlyPerson person : allPersons) {
-                if (!person.getInterest().value.equals("No interest set.")
-                        && (person.checkLastAccruedDate(new Date()) != 0)) {
-                    updateDebtFromInterest(person, person.checkLastAccruedDate(new Date()));
-                }
-            }
+            checkAndUpdateInterest();
         }
     }
 

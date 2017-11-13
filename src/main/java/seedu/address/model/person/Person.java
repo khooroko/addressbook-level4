@@ -483,9 +483,8 @@ public class Person implements ReadOnlyPerson {
     public int checkLastAccruedDate(Date currentDate) {
         if (lastAccruedDate.before(currentDate)) {
             return DateUtil.getNumberOfMonthBetweenDates(currentDate, lastAccruedDate);
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     //@@author
