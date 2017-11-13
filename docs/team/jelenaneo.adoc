@@ -34,9 +34,11 @@ include::../UserGuide.adoc[tag=logout]
 
 Debtor's personal information will be stored in the address book. Hence, there is a need to limit access of the address book to debt collectors only.
 
-Only `help`, `exit` and `login` commands can be entered before login. Users can open a help window using the `help` command to look for further information on how to login if they need to. Users should also be able to exit the app without being logged in.
+Only `help`, `exit` and `login` commands can be entered before login. If other commands, including unknown commands are entered, the error message "Please log in first" will be displayed. This is because users should log in first before being able to use the app. Users can open a help window using the `help` command to look for further information on how to login if they need to. Users should also be able to exit the app without being logged in.
 
-It also makes sense for the user to be able to log out of the app without closing the app.
+It also makes sense for the user to be able to log out without closing the app.
+
+The decision to include the CLI version of the login feature is based on convenience. One-shot commands take a shorter amount of time to type compared to multi-step commands. Although password masking caused the CLI login feature to behave unexpectedly at times, it is necessary to prevent others from seeing the password that is typed. The CLI login works as expected if the user does not insert/delete characters from within the input.
 
 ==== Implementation
 
@@ -68,6 +70,8 @@ include::../UserGuide.adoc[tag=payback]
 Should there be a need to adjust the debt of a person, the debt collector can use the `borrow` command to increase the debt by a specified amount  and the `payback` command to deduct a specified amount.
 If the debt collector uses the `edit` command to update the debt of a person, he/she has to manually calculate the new total debt before entering the new debt into the address book.
 The `borrow` and `payback` command eliminates this hassle by doing the math for the user.
+
+The whitespace character is used as the argument separator for both commands because it is more intuitive than special prefixes such as `n/` which is used to denote the name of a person.
 
 ==== Implementation
 
@@ -115,6 +119,7 @@ include::../DeveloperGuide.adoc[tag=filterTags]
 * Reduce information in person card (Pull request https://github.com/CS2103AUG2017-T17-B1/main/pull/239[#239])
 * Improve welcome page (Pull request https://github.com/CS2103AUG2017-T17-B1/main/pull/211[#211])
 * Add debt repayment progress bar (Pull requests https://github.com/CS2103AUG2017-T17-B1/main/pull/194[#194], https://github.com/CS2103AUG2017-T17-B1/main/pull/210[#210])
+* Improve info panel (Commit https://github.com/CS2103AUG2017-T17-B1/main/pull/299/commits/3f86f59883a6785a69bad3690047c8f5f9e69692[enhance info panel])
 
 == Project: Modulus
 [https://github.com/Kowalski985/Modulus/[Modulus]] is a web app to make module mapping more convenient for NUS students going overseas for exchange. This project was developed in pairs for [http://nusskylab-dev.comp.nus.edu.sg/[CP2106 Independent Software Development Project (Orbital)]].
